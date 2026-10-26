@@ -15,6 +15,8 @@ export default function AppShell({ type = 'image' }) {
   const toggleRef = useRef(null);
   const scrollBaseline = useRef(0);
   const { groups, loading, announcement, error, scrollRequest, create, loadHistory } = useGenerations();
+  const generatedItems = groups.slice().reverse().flatMap(group => group.items).filter(item => item.type === type);
+  const hasHistory = generatedItems.length > 0;
 
   useEffect(() => {
     if (!scrollRequest) return;
@@ -36,13 +38,14 @@ export default function AppShell({ type = 'image' }) {
 
   useEffect(() => {
     function openFromGallery() {
+      if (!hasHistory) return;
       scrollBaseline.current = resultsRef.current?.scrollTop || 0;
       setHistoryOpen(true);
       requestAnimationFrame(() => historyRef.current?.focus());
     }
     window.addEventListener('studio:show-history', openFromGallery);
     return () => window.removeEventListener('studio:show-history', openFromGallery);
-  }, []);
+  }, [hasHistory]);
 
   function handleScroll(event) {
     if (event.target !== event.currentTarget) return;
@@ -59,10 +62,10 @@ export default function AppShell({ type = 'image' }) {
   }
 
   return <div className="app-shell studio-shell">
-    <div className={`history-tray ${historyOpen ? 'is-open' : ''}`}>
+    {hasHistory && <div className={`history-tray ${historyOpen ? 'is-open' : ''}`}>
       <div id="studio-history-tray" ref={trayRef} className="history-tray-body" inert={!historyOpen ? true : undefined}>
         <div className="history-tray-content">
-          <HistoryStrip generatedItems={groups.slice().reverse().flatMap(group => group.items)} type={type} onSelect={loadHistory} stripRef={historyRef}/>
+          <HistoryStrip generatedItems={generatedItems} type={type} onSelect={loadHistory} stripRef={historyRef}/>
         </div>
       </div>
       <div className="history-tray-toolbar">
@@ -73,7 +76,7 @@ export default function AppShell({ type = 'image' }) {
           <span>History</span><Icon name="chevron" size={15}/>
         </button>
       </div>
-    </div>
+    </div>}
     <div className="workspace">
       <ControlPanel type={type} prompt={prompt} setPrompt={setPrompt} loading={loading} onGenerate={create}/>
       <main id="results" ref={resultsRef} onScroll={handleScroll} className="results-scroll" tabIndex={0} aria-label="Generation conversation and results">
