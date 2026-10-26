@@ -34,8 +34,28 @@ body>.app-shell:not(.header-shell):not(.studio-shell){flex:1;overflow-y:auto}
 .history-tray-content .history-strip{margin-top:0;margin-bottom:0}
 .results-scroll{overflow-anchor:none}
 
-.history-thumbnail-layer{position:absolute;inset:0;border-radius:6px;overflow:hidden;background:#f8ede8}
-.history-scroll>button.history-stack{overflow:visible;background:transparent}
-.history-stack .history-thumbnail-layer{inset:6px 0 0 6px;border:2px solid #fffdfa;box-shadow:0 1px 3px #50321b24}
-.history-count{position:absolute;right:3px;bottom:3px;z-index:5;min-width:18px;padding:2px 5px;border-radius:999px;background:#fffdfaeb;color:#42251d;font-size:9px;line-height:1.3;font-weight:600}
-.history-scroll .history-video{z-index:5;left:9px;right:auto;bottom:5px}
+/* Decks spread from bottom-left to top-right along a 45-degree slope. */
+.history-strip{height:auto;min-height:86px}
+.history-scroll{--preview-size:68px;--deck-step-x:18px;--deck-step-y:var(--deck-step-x);align-items:flex-end;padding:14px 4px 12px}
+.history-deck{position:relative;flex:none;width:var(--preview-size);height:var(--preview-size);transition:width 250ms ease-out,height 250ms ease-out}
+.history-deck.is-stacked{width:calc(var(--preview-size) + (var(--image-count) - 1) * 3px);height:calc(var(--preview-size) + (var(--image-count) - 1) * 3px)}.history-deck.is-stacked:is(:hover,:has(:focus-visible)){width:calc(var(--preview-size) + (var(--image-count) - 1) * var(--deck-step-x));height:calc(var(--preview-size) + (var(--image-count) - 1) * 3px)}
+.history-preview{position:absolute;top:0;left:0;width:var(--preview-size);height:var(--preview-size);border-radius:8px;overflow:hidden;background:#f8ede8;transition:left 250ms ease-out,top 250ms ease-out,transform 180ms ease-out,box-shadow 180ms ease-out}
+.history-deck.is-stacked .history-preview{top:calc((var(--image-count) - 1 - var(--image-index)) * 3px);left:calc(var(--image-index) * 3px);border:2px solid #fffdfa;box-shadow:0 2px 4px #50321b24}
+.history-deck.is-stacked:is(:hover,:has(:focus-visible)) .history-preview{top:calc((var(--image-count) - 1) * 3px - var(--image-index) * var(--deck-step-y));left:calc(var(--image-index) * var(--deck-step-x))}
+.history-deck .history-preview:is(:hover,:focus-visible){transform:translateY(-8px);box-shadow:0 8px 14px #50321b30;z-index:10!important}
+.history-deck .history-preview img{transform:none}
+.history-count{position:absolute;right:3px;bottom:3px;z-index:5;min-width:18px;padding:2px 5px;border-radius:999px;background:#fffdfaeb;color:#42251d;font-size:9px;line-height:1.3;font-weight:600;pointer-events:none;transition:opacity 180ms ease-out}
+.history-deck:is(:hover,:has(:focus-visible)) .history-count{opacity:0}
+.history-preview .history-video{z-index:1;left:5px;right:auto;bottom:5px}
+@media(min-width:640px) and (max-width:1023px){.history-scroll{--preview-size:60px}}
+@media(max-width:639px){.history-scroll{--preview-size:59px}.history-strip{min-height:77px}}
+/* Let the compact fan rise above the tray without growing its layout height.
+   The scroller's transparent headroom avoids clipping on its overflow axis. */
+.studio-shell{overflow:visible}
+.history-tray{position:relative;z-index:5}
+.history-tray.is-open .history-tray-content{overflow:visible}
+.history-tray-content .history-scroll{flex:1;min-width:0;width:0;padding-top:90px;margin-top:-76px;position:relative}
+.history-deck:is(:hover,:has(:focus-visible)){z-index:10}
+.history-tray-content .history-fade{z-index:1}
+.history-tray-content .history-strip{isolation:isolate}
+.history-tray-content .history-scroll{z-index:2}

@@ -10,18 +10,18 @@ export default function HistoryStrip({ type, onSelect, stripRef, historyGroups =
     <div className="history-scroll" ref={stripRef} tabIndex={0} aria-label="Browse history">
       {historyGroups.map(group => {
         const stacked = group.items.length > 1;
-        return <button type="button" key={group.id}
-          className={stacked ? 'history-stack' : undefined}
-          onClick={() => onSelect(group.id)}
-          aria-label={`Open generation: ${group.prompt}, ${group.items.length} ${type === 'video' ? 'videos' : 'images'}`}>
-          {group.items.slice(0, 3).map((item, index) => <span key={item.id}
-            className="history-thumbnail-layer"
-            style={stacked ? { transform: `translate(${-index * 3}px, ${-index * 3}px)`, zIndex: 3 - index } : undefined}>
-            <Image src={item.poster || item.src} alt={index === 0 ? group.prompt : ''} fill sizes="72px"/>
-          </span>)}
+        return <div key={group.id} className={`history-deck ${stacked ? 'is-stacked' : ''}`}
+          role="group" aria-label={`Generation: ${group.prompt}`}
+          style={{ '--image-count': group.items.length }}>
+          {group.items.map((item, index) => <button type="button" key={item.id}
+            className="history-preview" style={{ '--image-index': index, zIndex: group.items.length - index }}
+            onClick={() => onSelect(group.id)}
+            aria-label={`Open ${type} ${index + 1} of ${group.items.length}: ${group.prompt}`}>
+            <Image src={item.poster || item.src} alt={group.prompt} fill sizes="72px"/>
+            {type === 'video' && <span className="history-video"><Icon name="play" size={12}/></span>}
+          </button>)}
           {stacked && <span className="history-count" aria-hidden="true">{group.items.length}</span>}
-          {type === 'video' && <span className="history-video"><Icon name="play" size={12}/></span>}
-        </button>;
+        </div>;
       })}
     </div>
     <div className="history-fade"/>
