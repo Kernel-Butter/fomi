@@ -21,3 +21,15 @@ body>.app-shell:not(.header-shell):not(.studio-shell){flex:1;overflow-y:auto}
  .studio-shell>.workspace{grid-template-rows:minmax(0,auto) minmax(0,1fr);gap:14px}
  .studio-shell .control-panel{max-height:40dvh;width:100%}
 }
+/* A persistent handle keeps history reachable while the feed is scrolled. */
+.history-tray{flex:none;padding-top:4px}
+.history-tray-toolbar{display:flex;justify-content:center;padding:2px 0 10px}
+.history-tray-toggle{display:inline-flex;align-items:center;gap:7px;background:#fffdfa;border:1px solid #ecdcd4;border-radius:999px;padding:6px 14px;font-size:11px;color:#66534a;box-shadow:0 3px 12px #6a483308}
+.history-tray-toggle:hover{background:#f8ede8}
+.history-tray-toggle svg{transition:transform 200ms ease}
+.history-tray.is-open .history-tray-toggle svg{transform:rotate(180deg)}
+.history-tray-body{display:grid;grid-template-rows:0fr;opacity:0;transition:grid-template-rows 240ms ease,opacity 180ms ease}
+.history-tray.is-open .history-tray-body{grid-template-rows:1fr;opacity:1}
+.history-tray-content{min-height:0;overflow:hidden}
+.history-tray-content .history-strip{margin-top:0}
+.results-scroll{overflow-anchor:none}
