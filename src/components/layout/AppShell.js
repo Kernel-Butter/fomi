@@ -47,6 +47,11 @@ export default function AppShell({ type = 'image' }) {
 
   return <div className="app-shell studio-shell">
     <div className={`history-tray ${historyOpen ? 'is-open' : ''}`}>
+      <div id="studio-history-tray" ref={trayRef} className="history-tray-body" inert={!historyOpen ? true : undefined}>
+        <div className="history-tray-content">
+          <HistoryStrip type={type} onSelect={loadHistory} stripRef={historyRef}/>
+        </div>
+      </div>
       <div className="history-tray-toolbar">
         <button ref={toggleRef} type="button" className="history-tray-toggle"
           aria-expanded={historyOpen} aria-controls="studio-history-tray"
@@ -54,11 +59,6 @@ export default function AppShell({ type = 'image' }) {
           onClick={historyOpen ? collapseHistory : expandHistory}>
           <span>History</span><Icon name="chevron" size={15}/>
         </button>
-      </div>
-      <div id="studio-history-tray" ref={trayRef} className="history-tray-body" inert={!historyOpen ? true : undefined}>
-        <div className="history-tray-content">
-          <HistoryStrip type={type} onSelect={loadHistory} stripRef={historyRef}/>
-        </div>
       </div>
     </div>
     <div className="workspace">
