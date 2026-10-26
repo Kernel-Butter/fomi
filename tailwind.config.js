@@ -1,0 +1,1 @@
+module.exports = { content: ['./src/**/*.{js,jsx}'], theme: { extend: { colors: { cream: '#FCF9F7', blush: '#F8EDE8', coral: '#E59D88', ink: '#272622', muted: '#918A85' }, boxShadow: { soft: '0 8px 28px rgba(85,57,43,.045)' } } }, plugins: [] };
