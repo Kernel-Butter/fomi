@@ -15,8 +15,8 @@ export default function AppShell({ type = 'image' }) {
   const toggleRef = useRef(null);
   const scrollBaseline = useRef(0);
   const { groups, loading, announcement, error, scrollRequest, create, loadHistory } = useGenerations();
-  const generatedItems = groups.slice().reverse().flatMap(group => group.items).filter(item => item.type === type);
-  const hasHistory = generatedItems.length > 0;
+  const historyGroups = groups.slice().reverse().filter(group => !group.loading && group.items.length > 0 && group.type === type);
+  const hasHistory = historyGroups.length > 0;
 
   useEffect(() => {
     if (!scrollRequest) return;
@@ -65,7 +65,7 @@ export default function AppShell({ type = 'image' }) {
     {hasHistory && <div className={`history-tray ${historyOpen ? 'is-open' : ''}`}>
       <div id="studio-history-tray" ref={trayRef} className="history-tray-body" inert={!historyOpen ? true : undefined}>
         <div className="history-tray-content">
-          <HistoryStrip generatedItems={generatedItems} type={type} onSelect={loadHistory} stripRef={historyRef}/>
+          <HistoryStrip historyGroups={historyGroups} type={type} onSelect={loadHistory} stripRef={historyRef}/>
         </div>
       </div>
       <div className="history-tray-toolbar">

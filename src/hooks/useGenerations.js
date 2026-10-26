@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { useEffect, useRef, useState } from 'react';
 import { generate } from '../lib/api';
 
@@ -38,12 +38,8 @@ export default function useGenerations() {
     }
   }
 
-  function loadHistory(item) {
-    const existing = groups.find(group => group.items.some(result => result.id === item.id));
-    const id = existing?.id || crypto.randomUUID();
-    if (!existing) {
-      setGroups(previous => [...previous, { id, prompt: item.prompt, model: item.model, type: item.type, items: [item], loading: false }]);
-    }
+  function loadHistory(id) {
+    if (!groups.some(group => group.id === id)) return;
     setScrollRequest({ id, mode: 'conversation' });
   }
 
