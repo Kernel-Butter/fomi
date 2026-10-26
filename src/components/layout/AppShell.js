@@ -14,8 +14,21 @@ export default function AppShell({ type = 'image' }) {
   const resultsRef = useRef(null);
   const toggleRef = useRef(null);
   const scrollBaseline = useRef(0);
-  const { groups, loading, announcement, error, create, loadHistory } = useGenerations();
+  const { groups, loading, announcement, error, scrollRequest, create, loadHistory } = useGenerations();
 
+  useEffect(() => {
+    if (!scrollRequest) return;
+    const frame = requestAnimationFrame(() => {
+      const feed = resultsRef.current;
+      const group = document.getElementById(`generation-${scrollRequest.id}`);
+      if (!feed || !group) return;
+      const top = scrollRequest.mode === 'bottom'
+        ? feed.scrollHeight
+        : feed.scrollTop + group.getBoundingClientRect().top - feed.getBoundingClientRect().top - 4;
+      feed.scrollTo({ top, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [scrollRequest]);
   function expandHistory() {
     scrollBaseline.current = resultsRef.current?.scrollTop || 0;
     setHistoryOpen(true);
@@ -49,7 +62,7 @@ export default function AppShell({ type = 'image' }) {
     <div className={`history-tray ${historyOpen ? 'is-open' : ''}`}>
       <div id="studio-history-tray" ref={trayRef} className="history-tray-body" inert={!historyOpen ? true : undefined}>
         <div className="history-tray-content">
-          <HistoryStrip type={type} onSelect={loadHistory} stripRef={historyRef}/>
+          <HistoryStrip generatedItems={groups.slice().reverse().flatMap(group => group.items)} type={type} onSelect={loadHistory} stripRef={historyRef}/>
         </div>
       </div>
       <div className="history-tray-toolbar">
