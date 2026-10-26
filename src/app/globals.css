@@ -59,3 +59,5 @@ body>.app-shell:not(.header-shell):not(.studio-shell){flex:1;overflow-y:auto}
 .history-tray-content .history-fade{z-index:1}
 .history-tray-content .history-strip{isolation:isolate}
 .history-tray-content .history-scroll{z-index:2}
+.studio-workspace,.studio-session{display:flex;flex:1;min-height:0;width:100%}
+.studio-workspace[hidden],.studio-session[hidden]{display:none}

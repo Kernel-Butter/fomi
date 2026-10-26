@@ -1,4 +1,4 @@
-﻿# Fomi Studio
+# Fomi Studio
 
 Responsive image and video generation demo built with Next.js App Router, JavaScript, React, and Tailwind CSS.
 
@@ -58,7 +58,7 @@ Returns `{ "items": [...] }` after 1.2-1.9 seconds. Each item contains `id`, `ty
 
 ## Demo limitations
 
-- The initial feed is empty until generation or history selection. State resets when leaving a studio or refreshing.
+- The initial feed and history are empty until generation. Each studio keeps its prompts, settings, generations, and history across route changes until the browser is refreshed.
 - Seed, negative prompt, and style selections are preview controls; they do not affect mock output.
 - Colors follow the written brief approximately; an exact mockup image was not available for comparison.
 - Support uses a placeholder email address.
