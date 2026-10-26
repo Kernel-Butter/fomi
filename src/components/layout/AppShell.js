@@ -8,7 +8,7 @@ import useGenerations from '../../hooks/useGenerations';
 
 export default function AppShell({ type = 'image' }) {
   const [prompt, setPrompt] = useState('');
-  const [historyOpen, setHistoryOpen] = useState(true);
+  const [historyOpen, setHistoryOpen] = useState(false);
   const historyRef = useRef(null);
   const trayRef = useRef(null);
   const resultsRef = useRef(null);
