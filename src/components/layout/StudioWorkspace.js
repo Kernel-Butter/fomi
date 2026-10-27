@@ -5,7 +5,12 @@ import AppShell from "./AppShell";
 import Header from "./Header";
 import { StudioNavigationContext } from "./StudioNavigation";
 import { StudioBackendContext } from "./StudioBackend";
-import { getConfig, startSession, getSettings } from "../../lib/api";
+import {
+  getConfig,
+  startSession,
+  getSettings,
+  getProfile,
+} from "../../lib/api";
 
 export default function StudioWorkspace({ children }) {
   const pathname = usePathname();
@@ -13,6 +18,14 @@ export default function StudioWorkspace({ children }) {
   const previewOpen = pathname.startsWith("/media/");
   const handlers = useRef(new Map());
   const [backend, setBackend] = useState(null);
+  const [profile, setProfile] = useState(null);
+  useEffect(() => {
+    const abort = new AbortController();
+    getProfile(abort.signal)
+      .then((data) => setProfile(data.profile))
+      .catch(() => {});
+    return () => abort.abort();
+  }, []);
   const [error, setError] = useState("");
   const [attempt, setAttempt] = useState(0);
   useEffect(() => {
@@ -61,7 +74,11 @@ export default function StudioWorkspace({ children }) {
   return (
     <StudioNavigationContext.Provider value={navigation}>
       <div className="app-shell header-shell">
-        <Header />
+        <Header
+          profile={profile}
+          application={backend?.config.application}
+          features={backend?.config.features}
+        />
       </div>
       <div className="studio-workspace" hidden={!inStudio}>
         {backend ? (
@@ -70,11 +87,24 @@ export default function StudioWorkspace({ children }) {
               const visible = segment === `${type}studio`;
               const active = visible && !previewOpen;
               return (
-                <div key={type} className="studio-session" hidden={!visible}>
+                <div
+                  key={type}
+                  className="studio-session"
+                  hidden={!visible || !backend.config.features[type]}
+                >
                   <AppShell type={type} active={active} />
                 </div>
               );
             })}
+            {inStudio &&
+              !backend.config.features[
+                segment === "imagestudio" ? "image" : "video"
+              ] && (
+                <main className="not-found">
+                  <h1>This studio is currently unavailable</h1>
+                  <p>Please choose another studio from the header.</p>
+                </main>
+              )}
           </StudioBackendContext.Provider>
         ) : (
           <div

@@ -1,5 +1,5 @@
 ﻿import { createHash, randomInt, randomUUID } from "node:crypto";
-import { defaultAdvanced } from "../generationConfig.js";
+import { defaultAdvanced, limits } from "../generationConfig.js";
 
 function fingerprint(value) {
   return Number.parseInt(
@@ -10,7 +10,9 @@ function fingerprint(value) {
 export function resolveGeneration(options) {
   const advanced = { ...defaultAdvanced, ...options.advanced };
   const seed =
-    advanced.seed === "" ? randomInt(0, 4294967296) : Number(advanced.seed);
+    advanced.seed === ""
+      ? randomInt(limits.seed.min, limits.seed.max + limits.seed.step)
+      : Number(advanced.seed);
   return { ...options, advanced: { ...advanced, seed: String(seed) } };
 }
 export function makeOutputs(job) {

@@ -6,18 +6,28 @@
   disabled,
 }) {
   const noun = type === "video" ? "Video" : "Image";
+  const availableModels = config.models.filter((model) =>
+    model.types.includes(type),
+  );
+  const model = availableModels.find((value) => value.id === options.model);
   return (
     <div className="option-selects">
       {[
         {
           key: "count",
           label: `Number of ${noun.toLowerCase()}s`,
-          values: config.counts,
-          format: (value) => `# ${value} ${noun}${value === 1 ? "" : "s"}`,
+          values: model.counts.map((value) => ({
+            id: value,
+            name: `# ${value} ${noun}${value === 1 ? "" : "s"}`,
+          })),
         },
-        { key: "ratio", label: "Aspect ratio", values: config.ratios },
-        { key: "model", label: "Model", values: config.models },
-      ].map(({ key, label, values, format }) => (
+        {
+          key: "ratio",
+          label: "Aspect ratio",
+          values: model.ratios.map((value) => ({ id: value, name: value })),
+        },
+        { key: "model", label: "Model", values: availableModels },
+      ].map(({ key, label, values }) => (
         <label key={key}>
           <span className="sr-only">{label}</span>
           <select
@@ -35,8 +45,8 @@
             }
           >
             {values.map((value) => (
-              <option key={value} value={value}>
-                {format ? format(value) : value}
+              <option key={value.id} value={value.id}>
+                {value.name}
               </option>
             ))}
           </select>

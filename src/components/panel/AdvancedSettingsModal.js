@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import { normalizeSettings } from "../../lib/modelCapabilities";
 export default function AdvancedSettingsModal({
   config,
+  model,
   saving,
   error,
   open,
@@ -11,7 +13,16 @@ export default function AdvancedSettingsModal({
   onDismiss,
   type,
 }) {
-  const { defaultAdvanced, references, samplingSteps } = config;
+  const { references, limits } = config;
+  const defaultAdvanced = normalizeSettings(
+    {
+      options: { ...config.defaultOptions, model: model.id },
+      advanced: config.defaultAdvanced,
+    },
+    type,
+    config,
+  ).advanced;
+  const samplingSteps = model.samplingSteps;
   const dialogRef = useRef(null);
   const [tab, setTab] = useState("Styles");
   const [draft, setDraft] = useState(value);
@@ -81,6 +92,16 @@ export default function AdvancedSettingsModal({
             <button
               type="button"
               key={name}
+              disabled={
+                saving ||
+                !model.settings.includes(
+                  name === "Styles"
+                    ? "style"
+                    : name === "Colors"
+                      ? "color"
+                      : "camera",
+                )
+              }
               aria-pressed={tab === name}
               onClick={() => setTab(name)}
             >
@@ -97,6 +118,7 @@ export default function AdvancedSettingsModal({
           {references[tab].map((reference) => (
             <button
               type="button"
+              disabled={saving || !model.settings.includes(field)}
               key={reference.name}
               className={`reference-card ${draft[field] === reference.name ? "is-selected" : ""}`}
               aria-pressed={draft[field] === reference.name}
@@ -104,7 +126,7 @@ export default function AdvancedSettingsModal({
             >
               <span className="reference-art">
                 <Image
-                  src={`/images/sample-${reference.image}.jpg`}
+                  src={reference.imageUrl}
                   alt={reference.detail}
                   fill
                   sizes="(max-width: 639px) 40vw, 240px"
@@ -137,12 +159,12 @@ export default function AdvancedSettingsModal({
               Leave empty for a random starting point
             </span>
             <input
-              disabled={saving}
+              disabled={saving || !model.settings.includes("seed")}
               id={`${type}-seed`}
               type="number"
-              min="0"
-              max="4294967295"
-              step="1"
+              min={limits.seed.min}
+              max={limits.seed.max}
+              step={limits.seed.step}
               placeholder="Random"
               value={draft.seed}
               onChange={(event) => update("seed", event.target.value)}
@@ -152,7 +174,7 @@ export default function AdvancedSettingsModal({
             Sampling steps
             <span className="advanced-hint">Refinement per generation</span>
             <select
-              disabled={saving}
+              disabled={saving || !model.settings.includes("steps")}
               id={`${type}-steps`}
               value={draft.steps}
               onChange={(event) => update("steps", Number(event.target.value))}
@@ -175,9 +197,10 @@ export default function AdvancedSettingsModal({
             <input
               id={`${type}-guidance`}
               type="range"
-              min="1"
-              max="20"
-              step="0.5"
+              disabled={saving || !model.settings.includes("guidance")}
+              min={model.guidance.min}
+              max={model.guidance.max}
+              step={model.guidance.step}
               value={draft.guidance}
               onChange={(event) =>
                 update("guidance", Number(event.target.value))
@@ -197,10 +220,10 @@ export default function AdvancedSettingsModal({
               Details you would like to leave out
             </span>
             <textarea
-              disabled={saving}
+              disabled={saving || !model.settings.includes("negative")}
               id={`${type}-negative`}
               rows="2"
-              maxLength={2000}
+              maxLength={limits.negative.maxLength}
               placeholder="Blur, distortion, unwanted text…"
               value={draft.negative}
               onChange={(event) => update("negative", event.target.value)}

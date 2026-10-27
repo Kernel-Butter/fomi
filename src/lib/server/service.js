@@ -1,26 +1,34 @@
+import { normalizeSettings } from "../modelCapabilities.js";
+import { models, defaultAdvanced } from "../generationConfig.js";
 import { findPublicMedia } from "./store.js";
 import { randomUUID } from "node:crypto";
-import { isValidGenerationRequest } from "../generationValidation.js";
-import { defaultSettings, ServiceError } from "./store.js";
+import {
+  isValidGenerationRequest,
+  isValidStudioSettings,
+} from "../generationValidation.js";
+import { ServiceError } from "./store.js";
 import { durationFor, makeOutputs, resolveGeneration } from "./simulator.js";
 
 export function saveSettings(session, type, value) {
-  if (
-    !value ||
-    !isValidGenerationRequest({
-      ...value.options,
-      prompt: "Settings validation",
-      type,
-      advanced: value.advanced,
-    }) ||
-    !value.advanced
-  )
+  if (!isValidStudioSettings(value, type))
     throw new ServiceError(400, "Please check your generation settings.");
   session.settings[type] = structuredClone(value);
   return session.settings[type];
 }
 export function resetSettings(session, type) {
-  session.settings[type].advanced = defaultSettings().advanced;
+  const model = models.find(
+    (value) => value.id === session.settings[type].options.model,
+  );
+  session.settings[type].advanced = {
+    ...defaultAdvanced,
+    steps: model.samplingSteps.includes(defaultAdvanced.steps)
+      ? defaultAdvanced.steps
+      : model.samplingSteps[0],
+    guidance: Math.max(
+      model.guidance.min,
+      Math.min(model.guidance.max, defaultAdvanced.guidance),
+    ),
+  };
   return session.settings[type];
 }
 export function readJob(session, id) {
@@ -77,7 +85,16 @@ export function submitJob(session, data, failOnce = false) {
     ratio: data.ratio,
     model: data.model,
     type: data.type,
-    advanced: data.advanced ?? session.settings[data.type].advanced,
+    advanced:
+      data.advanced ??
+      normalizeSettings(
+        {
+          options: { count: data.count, ratio: data.ratio, model: data.model },
+          advanced: session.settings[data.type].advanced,
+        },
+        data.type,
+        { models, defaultAdvanced },
+      ).advanced,
   });
   const now = Date.now();
   session.jobs.set(id, {

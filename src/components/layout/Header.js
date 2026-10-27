@@ -5,7 +5,7 @@ import Image from "next/image";
 import Icon from "../Icon";
 import { useContext } from "react";
 import { StudioNavigationContext } from "./StudioNavigation";
-export default function Header() {
+export default function Header({ profile, application, features }) {
   const { openHistory } = useContext(StudioNavigationContext);
   const pathname = "/" + (useSelectedLayoutSegment() || "");
   const tabs = [
@@ -51,6 +51,8 @@ export default function Header() {
             <Link
               key={name}
               href={href}
+              title={features && !features[name] ? "Coming soon" : undefined}
+              data-available={features?.[name] || false}
               prefetch={true}
               aria-label={
                 name === "image"
@@ -68,25 +70,41 @@ export default function Header() {
         </div>
       </nav>
       <div className="header-actions">
-        <button className="utility" onClick={openHistory}>
+        <button
+          className="utility"
+          disabled={!features?.gallery}
+          onClick={openHistory}
+        >
           <Icon name="gallery" size={15} />
           <span>Gallery</span>
         </button>
         <a
           className="utility"
-          href="mailto:support@frame.example"
-          aria-label="Contact support"
+          href={features?.support ? application.support.href : undefined}
+          aria-label={application?.support.label || "Contact support"}
+          aria-disabled={!features?.support}
         >
           <Icon name="support" size={15} />
           <span>Support</span>
         </a>
-        <Image
-          className="avatar"
-          src="/images/sample-1.jpg"
-          width={28}
-          height={28}
-          alt="Your profile"
-        />
+        {profile ? (
+          <Image
+            className="avatar"
+            src={profile.avatarUrl}
+            width={28}
+            height={28}
+            alt={profile.avatarAlt}
+            title={profile.displayName}
+          />
+        ) : (
+          <span
+            className="avatar avatar-placeholder"
+            role="img"
+            aria-label="Profile"
+          >
+            <Icon name="profile" size={17} />
+          </span>
+        )}
       </div>
     </header>
   );

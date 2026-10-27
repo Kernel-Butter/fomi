@@ -1,4 +1,7 @@
 ﻿import {
+  limits,
+  features,
+  application,
   defaultAdvanced,
   defaultOptions,
   references,
@@ -13,6 +16,9 @@ import { respond } from "../../../lib/server/http";
 
 export function GET() {
   return respond(() => ({
+    limits,
+    features,
+    application,
     defaultAdvanced,
     references,
     styles,

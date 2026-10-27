@@ -278,3 +278,18 @@ body > .app-shell:not(.header-shell):not(.studio-shell) {
   padding: 9px 18px;
   border-radius: 999px;
 }
+
+.avatar-placeholder {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  background: #efdfd5;
+  color: #886b5a;
+  flex: none;
+}
+.header .utility[aria-disabled="true"],
+.mode-toggle a[aria-disabled="true"] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

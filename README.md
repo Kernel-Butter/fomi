@@ -36,18 +36,19 @@ Dependency installation and the initial Inter font build require network access.
 
 Start with `POST /api/sessions`, then send the returned `id` as the `X-Session-ID` header. The browser manages this automatically in memory. No session ID is saved in localStorage or cookies.
 
-| Endpoint                          | Behavior                                                                 |
-| --------------------------------- | ------------------------------------------------------------------------ |
-| `GET /api/config`                 | Public models, presets, supported values, defaults, and polling interval |
-| `POST /api/sessions`              | Create an isolated demo session; HTTP 201                                |
-| `GET /api/settings?type=image`    | Retrieve studio preferences (`image` or `video`)                         |
-| `PUT /api/settings?type=image`    | Save `{ options, advanced }`                                             |
-| `DELETE /api/settings?type=image` | Reset advanced settings; keep count, ratio, and model                    |
-| `POST /api/generate`              | Submit a generation; HTTP 202 with `{ job }`                             |
-| `GET /api/jobs/:id`               | Poll progress, error, metadata, and final items                          |
-| `POST /api/jobs/:id/retry`        | Restart a failed job under the same conversation ID                      |
-| `GET /api/history?type=image`     | Completed groups, newest first, scoped to session and type               |
-| `GET /api/history/:id`            | Retrieve a complete, completed conversation                              |
+| Endpoint                          | Behavior                                                                                                              |
+| --------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `GET /api/config`                 | Public model capabilities, validation limits, presets, defaults, support details, feature flags, and polling interval |
+| `GET /api/profile`                | Demo display name and avatar URL; optional for studio initialization                                                  |
+| `POST /api/sessions`              | Create an isolated demo session; HTTP 201                                                                             |
+| `GET /api/settings?type=image`    | Retrieve studio preferences (`image` or `video`)                                                                      |
+| `PUT /api/settings?type=image`    | Save `{ options, advanced }`                                                                                          |
+| `DELETE /api/settings?type=image` | Reset advanced settings; keep count, ratio, and model                                                                 |
+| `POST /api/generate`              | Submit a generation; HTTP 202 with `{ job }`                                                                          |
+| `GET /api/jobs/:id`               | Poll progress, error, metadata, and final items                                                                       |
+| `POST /api/jobs/:id/retry`        | Restart a failed job under the same conversation ID                                                                   |
+| `GET /api/history?type=image`     | Completed groups, newest first, scoped to session and type                                                            |
+| `GET /api/history/:id`            | Retrieve a complete, completed conversation                                                                           |
 
 Example generation body:
 
@@ -133,3 +134,11 @@ The App Router implementation uses `@modal/(.)media/[id]` to intercept soft navi
 `GET /api/media/:id` returns one completed output plus previous/next IDs, its position, and the output count within the same generation. This is an intentionally public, read-only media link in the dummy backend; it does not expose session IDs, private settings, or unrelated conversations. Direct visits and refresh can still display that single output while its original in-memory session exists. The new studio session remains empty after refresh. Links expire when the originating session expires or the server restarts; the preview then shows a recovery link.
 
 Preview arrows move within the selected generation; first/last boundaries are disabled, and single-output generations omit the controls. Image previews also support Left/Right arrow keys. A persistent intercepted-route layout keeps the dialog open while URLs change, and replacement navigation means Close returns directly to the studio. Standalone viewers update their URL through the Next.js-compatible native History API without opening a nested modal.
+
+## API-owned configuration
+
+`/api/config` is the source of application data. `limits` defines prompt and negative-prompt lengths and seed bounds. Each model provides `id`, `name`, supported `types`, counts, ratios, sampling steps, supported advanced `settings`, and guidance min/max/step. The frontend filters choices and normalizes count, ratio, steps, and guidance when changing models; the API independently rejects unsupported combinations. Settings validation does not depend on prompt length.
+
+The Frame model supports both studios. Flux is image-only and does not offer camera references. Studio supports one or two outputs with landscape or square ratios. These are demo capabilities; change the backend fixtures to simulate another catalog.
+
+Reference artwork uses complete `imageUrl` values returned by the API. `application.support` supplies the support destination and accessible label. `/api/profile` supplies the demo identity; a neutral profile icon remains if that optional request fails. Feature flags control studio availability and header actions while route paths remain frontend-owned. Profile and configuration fixtures are defined in the backend, not in UI components.

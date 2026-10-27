@@ -7,6 +7,7 @@ import AdvancedSettingsModal from "./AdvancedSettingsModal";
 import { StudioBackendContext } from "../layout/StudioBackend";
 import { saveSettings, resetSettings } from "../../lib/api";
 import Icon from "../Icon";
+import { findModel, normalizeSettings } from "../../lib/modelCapabilities";
 
 export default function ControlPanel({
   promptRef,
@@ -29,6 +30,7 @@ export default function ControlPanel({
   async function persist(next, { optimistic = true, reset = false } = {}) {
     if (pendingSave.current) return false;
     pendingSave.current = true;
+    next = normalizeSettings(next, type, config);
     const previous = settings;
     if (optimistic) setSettings(next);
     setSaving(true);
@@ -69,7 +71,7 @@ export default function ControlPanel({
             submit(event);
         }}
       >
-        <ModeToggle type={type} />
+        <ModeToggle features={config.features} type={type} />
         <PromptBox
           inputRef={promptRef}
           type={type}
@@ -77,6 +79,7 @@ export default function ControlPanel({
           setPrompt={setPrompt}
           loading={loading}
           disabled={saving}
+          limits={config.limits}
         />
         <OptionSelects
           type={type}
@@ -137,6 +140,7 @@ export default function ControlPanel({
       </form>
       <AdvancedSettingsModal
         config={config}
+        model={findModel(config, settings.options.model, type)}
         type={type}
         open={modalOpen}
         active={active}
@@ -145,7 +149,14 @@ export default function ControlPanel({
         error={modalOpen ? error : ""}
         onApply={async (advanced) => {
           const reset =
-            JSON.stringify(advanced) === JSON.stringify(config.defaultAdvanced);
+            JSON.stringify(advanced) ===
+            JSON.stringify(
+              normalizeSettings(
+                { ...settings, advanced: config.defaultAdvanced },
+                type,
+                config,
+              ).advanced,
+            );
           if (
             await persist(
               { ...settings, advanced },

@@ -84,3 +84,5 @@ export function pollDelay(duration, signal) {
 
 export const getMedia = (id, signal) =>
   request(`/api/media/${encodeURIComponent(id)}`, { signal });
+
+export const getProfile = (signal) => request("/api/profile", { signal });

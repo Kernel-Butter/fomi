@@ -5,6 +5,7 @@ export default function PromptBox({
   prompt,
   setPrompt,
   loading,
+  limits,
   disabled = false,
 }) {
   return (
@@ -16,7 +17,7 @@ export default function PromptBox({
         ref={inputRef}
         id={`${type}-prompt`}
         value={prompt}
-        maxLength={5000}
+        maxLength={limits.prompt.maxLength}
         onChange={(event) => setPrompt(event.target.value)}
         placeholder="Describe your imagination to be converted into a piece of art..."
       />
