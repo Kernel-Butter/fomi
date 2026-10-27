@@ -81,3 +81,6 @@ export function pollDelay(duration, signal) {
     signal.addEventListener("abort", onAbort, { once: true });
   });
 }
+
+export const getMedia = (id, signal) =>
+  request(`/api/media/${encodeURIComponent(id)}`, { signal });

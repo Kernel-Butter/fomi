@@ -1,5 +1,5 @@
 ﻿"use client";
-import { usePathname } from "next/navigation";
+import { usePathname, useSelectedLayoutSegment } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import AppShell from "./AppShell";
 import Header from "./Header";
@@ -9,6 +9,8 @@ import { getConfig, startSession, getSettings } from "../../lib/api";
 
 export default function StudioWorkspace({ children }) {
   const pathname = usePathname();
+  const segment = useSelectedLayoutSegment();
+  const previewOpen = pathname.startsWith("/media/");
   const handlers = useRef(new Map());
   const [backend, setBackend] = useState(null);
   const [error, setError] = useState("");
@@ -55,7 +57,7 @@ export default function StudioWorkspace({ children }) {
     () => ({ registerHistory, openHistory }),
     [registerHistory, openHistory],
   );
-  const inStudio = ["/imagestudio", "/videostudio"].includes(pathname);
+  const inStudio = ["imagestudio", "videostudio"].includes(segment);
   return (
     <StudioNavigationContext.Provider value={navigation}>
       <div className="app-shell header-shell">
@@ -65,9 +67,10 @@ export default function StudioWorkspace({ children }) {
         {backend ? (
           <StudioBackendContext.Provider value={backend}>
             {["image", "video"].map((type) => {
-              const active = pathname === `/${type}studio`;
+              const visible = segment === `${type}studio`;
+              const active = visible && !previewOpen;
               return (
-                <div key={type} className="studio-session" hidden={!active}>
+                <div key={type} className="studio-session" hidden={!visible}>
                   <AppShell type={type} active={active} />
                 </div>
               );

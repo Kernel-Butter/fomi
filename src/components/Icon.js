@@ -1,5 +1,9 @@
 export default function Icon({ name, size = 18, ...props }) {
   const paths = {
+    previous: "m15 5-7 7 7 7",
+    next: "m9 5 7 7-7 7",
+    close: "M6 6l12 12M18 6 6 18",
+    expand: "M8 3H3v5M16 3h5v5M21 16v5h-5M8 21H3v-5",
     home: "m3 10 9-7 9 7v10h-6v-6H9v6H3Z",
     image: "M4 4h16v16H4ZM4 16l5-5 4 4 3-3 4 4M15 8h.01",
     video: "M3 6h12v12H3ZM15 10l6-4v12l-6-4",

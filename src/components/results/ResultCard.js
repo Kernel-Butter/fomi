@@ -1,6 +1,7 @@
 ﻿"use client";
 import { memo, useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import Icon from "../Icon";
 
 function ResultCard({ item, index, priority, active }) {
@@ -74,6 +75,17 @@ function ResultCard({ item, index, priority, active }) {
         alt={item.prompt}
         priority={priority}
       />
+      <Link
+        className="result-preview-link"
+        href={`/media/${encodeURIComponent(item.id)}`}
+        scroll={false}
+        onClick={pause}
+        aria-label={`Open ${item.type} preview`}
+      >
+        <span className="result-expand" aria-hidden="true">
+          <Icon name="expand" size={16} />
+        </span>
+      </Link>
       {item.type === "video" && (
         <>
           {started && (

@@ -1,4 +1,5 @@
-﻿import { randomUUID } from "node:crypto";
+import { findPublicMedia } from "./store.js";
+import { randomUUID } from "node:crypto";
 import { isValidGenerationRequest } from "../generationValidation.js";
 import { defaultSettings, ServiceError } from "./store.js";
 import { durationFor, makeOutputs, resolveGeneration } from "./simulator.js";
@@ -113,4 +114,14 @@ export function readHistory(session, type) {
     .map((id) => readJob(session, id))
     .filter((job) => job.type === type && job.status === "completed")
     .sort((a, b) => b.createdAt - a.createdAt);
+}
+
+export function getPublicMedia(id) {
+  const item = findPublicMedia(id);
+  if (!item)
+    throw new ServiceError(
+      404,
+      "This preview is no longer available. Return to the studio to generate new media.",
+    );
+  return item;
 }

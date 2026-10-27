@@ -53,3 +53,26 @@ export function getType(request) {
     throw new ServiceError(400, "Choose an image or video studio.");
   return type;
 }
+
+export function findPublicMedia(id) {
+  for (const session of sessions.values()) {
+    if (session.expiresAt < Date.now()) continue;
+    for (const job of session.jobs.values()) {
+      if (job.status !== "completed") continue;
+      const item = job.items.find((value) => value.id === id);
+      if (item) {
+        const index = job.items.findIndex((value) => value.id === id);
+        return {
+          item,
+          navigation: {
+            previous: job.items[index - 1]?.id || null,
+            next: job.items[index + 1]?.id || null,
+            index: index + 1,
+            total: job.items.length,
+          },
+        };
+      }
+    }
+  }
+  return null;
+}

@@ -123,3 +123,13 @@ Runtime dependencies remain Next.js and React. ESLint, Prettier, and Playwright 
 - What changed and why
 - Validation performed
 ```
+
+## Image and video previews
+
+Click a result image, a video poster outside its inline play button, or the expand icon to open a full preview. Videos retain inline hover/play behavior; the expanded preview uses native video controls. The preview dialog traps focus, closes on Escape/backdrop/close, supports browser Back/Forward, and preserves the underlying studio and its scroll position. Background videos pause while it is open.
+
+The App Router implementation uses `@modal/(.)media/[id]` to intercept soft navigation into a modal and `media/[id]` for direct visits or refresh. `@modal/default.js` and the catch-all null route prevent unmatched or stale overlays. One shared `MediaPreview` component renders both forms.
+
+`GET /api/media/:id` returns one completed output plus previous/next IDs, its position, and the output count within the same generation. This is an intentionally public, read-only media link in the dummy backend; it does not expose session IDs, private settings, or unrelated conversations. Direct visits and refresh can still display that single output while its original in-memory session exists. The new studio session remains empty after refresh. Links expire when the originating session expires or the server restarts; the preview then shows a recovery link.
+
+Preview arrows move within the selected generation; first/last boundaries are disabled, and single-output generations omit the controls. Image previews also support Left/Right arrow keys. A persistent intercepted-route layout keeps the dialog open while URLs change, and replacement navigation means Close returns directly to the studio. Standalone viewers update their URL through the Next.js-compatible native History API without opening a nested modal.

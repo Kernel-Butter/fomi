@@ -1,13 +1,13 @@
 "use client";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useSelectedLayoutSegment } from "next/navigation";
 import Image from "next/image";
 import Icon from "../Icon";
 import { useContext } from "react";
 import { StudioNavigationContext } from "./StudioNavigation";
 export default function Header() {
   const { openHistory } = useContext(StudioNavigationContext);
-  const pathname = usePathname();
+  const pathname = "/" + (useSelectedLayoutSegment() || "");
   const tabs = [
     { name: "home", href: "/home" },
     { name: "image", href: "/imagestudio" },

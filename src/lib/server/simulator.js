@@ -1,4 +1,4 @@
-﻿import { createHash, randomInt } from "node:crypto";
+﻿import { createHash, randomInt, randomUUID } from "node:crypto";
 import { defaultAdvanced } from "../generationConfig.js";
 
 function fingerprint(value) {
@@ -41,7 +41,7 @@ export function makeOutputs(job) {
     const image = ((hash + index * 5) % 16) + 1;
     const clip = ((hash + index) % 2) + 1;
     return {
-      id: `${job.id}-${index}`,
+      id: randomUUID(),
       type,
       src:
         type === "video"
