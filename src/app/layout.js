@@ -1,3 +1,4 @@
+import { AntdRegistry } from "@ant-design/nextjs-registry";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import "../styles/base.css";
@@ -11,6 +12,9 @@ import "../styles/media-preview.css";
 import RouteProgressProvider from "../components/navigation/RouteProgressProvider";
 import "../styles/route-progress.css";
 import "../styles/tablet.css";
+import "../styles/mobile.css";
+import "../styles/history-drawer.css";
+import "../styles/drawers.css";
 import StudioWorkspace from "../components/layout/StudioWorkspace";
 const inter = Inter({ subsets: ["latin"], display: "swap" });
 export const metadata = {
@@ -21,12 +25,14 @@ export default function RootLayout({ children, modal }) {
   return (
     <html lang="en">
       <body className={inter.className}>
-        <RouteProgressProvider>
-          <StudioWorkspace>
-            {children}
-            {modal}
-          </StudioWorkspace>
-        </RouteProgressProvider>
+        <AntdRegistry>
+          <RouteProgressProvider>
+            <StudioWorkspace>
+              {children}
+              {modal}
+            </StudioWorkspace>
+          </RouteProgressProvider>
+        </AntdRegistry>
       </body>
     </html>
   );

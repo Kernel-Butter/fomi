@@ -3,9 +3,19 @@ import Link from "../navigation/AppLink";
 import { useSelectedLayoutSegment } from "next/navigation";
 import Image from "next/image";
 import Icon from "../Icon";
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
+import StudioDrawer from "../ui/StudioDrawer";
 import { StudioNavigationContext } from "./StudioNavigation";
 export default function Header({ profile, application, features }) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  useEffect(() => {
+    const query = window.matchMedia("(max-width: 1199px)");
+    const sync = () => {
+      if (!query.matches) setMenuOpen(false);
+    };
+    query.addEventListener("change", sync);
+    return () => query.removeEventListener("change", sync);
+  }, []);
   const { openHistory } = useContext(StudioNavigationContext);
   const pathname = "/" + (useSelectedLayoutSegment() || "");
   const tabs = [
@@ -16,8 +26,38 @@ export default function Header({ profile, application, features }) {
     { name: "folder", href: "/folder" },
   ];
   const activeIndex = tabs.findIndex((tab) => tab.href === pathname);
+  const labels = {
+    home: "Home",
+    image: "Image Studio",
+    video: "Video Studio",
+    wand: "Creative tools",
+    folder: "Folders",
+  };
+  const workspaceLinks = tabs.map(({ name, href }, index) => (
+    <Link
+      key={name}
+      href={href}
+      aria-label={labels[name]}
+      aria-current={activeIndex === index ? "page" : undefined}
+      onNavigate={() => setMenuOpen(false)}
+    >
+      <Icon name={name} />
+      <span>{labels[name]}</span>
+      {features && !features[name] && <small>Coming soon</small>}
+    </Link>
+  ));
   return (
     <header className="header">
+      <button
+        type="button"
+        className="header-menu-toggle"
+        aria-label="Open navigation"
+        aria-haspopup="dialog"
+        aria-expanded={menuOpen}
+        onClick={() => setMenuOpen(true)}
+      >
+        <Icon name="menu" size={24} />
+      </button>
       <Link
         className="logo block h-[34px] w-[21px] shrink-0 transition-all duration-200 hover:scale-110 hover:opacity-80 cursor-pointer"
         href="/imagestudio"
@@ -107,6 +147,39 @@ export default function Header({ profile, application, features }) {
           </span>
         )}
       </div>
+      <StudioDrawer
+        title="Navigation"
+        closeLabel="Close navigation"
+        placement="left"
+        size="min(340px, calc(100vw - 28px))"
+        rootClassName="navigation-drawer"
+        open={menuOpen}
+        onClose={() => setMenuOpen(false)}
+      >
+        <nav className="drawer-workspace-links" aria-label="Workspace">
+          {workspaceLinks}
+        </nav>
+        <div className="drawer-utilities">
+          <button
+            type="button"
+            disabled={!features?.gallery}
+            onClick={() => {
+              setMenuOpen(false);
+              openHistory();
+            }}
+          >
+            <Icon name="gallery" />
+            <span>Gallery</span>
+          </button>
+          <a
+            href={features?.support ? application.support.href : undefined}
+            aria-disabled={!features?.support}
+          >
+            <Icon name="support" />
+            <span>Support</span>
+          </a>
+        </div>
+      </StudioDrawer>
     </header>
   );
 }

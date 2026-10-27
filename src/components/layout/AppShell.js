@@ -67,6 +67,7 @@ export default function AppShell({ type, active }) {
   return (
     <div id={`${type}-studio`} className="app-shell studio-shell">
       <HistoryTray
+        active={active}
         ref={historyRef}
         type={type}
         groups={historyGroups}

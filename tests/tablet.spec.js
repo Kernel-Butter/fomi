@@ -10,6 +10,19 @@ for (const viewport of [
     await page.setViewportSize(viewport);
     await page.goto("/imagestudio");
     const studio = page.locator("#image-studio");
+    await page
+      .getByRole("button", { name: "Open navigation", exact: true })
+      .click();
+    const navigation = page.getByRole("dialog", {
+      name: "Navigation",
+      exact: true,
+    });
+    await expect(navigation).toBeVisible();
+    await expect(
+      navigation.getByRole("link", { name: "Image Studio", exact: true }),
+    ).toHaveAttribute("aria-current", "page");
+    await page.keyboard.press("Escape");
+    await expect(navigation).not.toBeVisible();
     const create = studio.getByRole("button", {
       name: "Create image",
       exact: true,
@@ -24,6 +37,12 @@ for (const viewport of [
       exact: true,
     });
     await expect(drawer).toBeVisible();
+    const drawerBounds = await drawer.boundingBox();
+    expect(drawerBounds.y).toBeGreaterThan(0);
+    expect(drawerBounds.y + drawerBounds.height).toBeCloseTo(
+      viewport.height,
+      0,
+    );
     await drawer
       .getByLabel("Your prompt", { exact: true })
       .fill("A wide tablet landscape");
@@ -41,6 +60,31 @@ for (const viewport of [
     expect(columns).toBe(viewport.columns);
     const results = await studio.locator(".results-scroll").boundingBox();
     expect(results.width).toBeGreaterThan(viewport.width - 100);
+    await studio
+      .getByRole("button", { name: "Show history", exact: true })
+      .click();
+    const history = page.getByRole("dialog", {
+      name: "Image history",
+      exact: true,
+    });
+    await expect(history).toBeVisible();
+    const entry = history.getByRole("button", {
+      name: "Open conversation: A wide tablet landscape",
+      exact: true,
+    });
+    await expect(entry).toBeVisible();
+    const layers = entry.locator(".compact-history-thumbnail > span");
+    const before = await layers.evaluateAll((elements) =>
+      elements.map((element) => getComputedStyle(element).transform),
+    );
+    await entry.hover();
+    const after = await layers.evaluateAll((elements) =>
+      elements.map((element) => getComputedStyle(element).transform),
+    );
+    expect(after).toEqual(before);
+    await entry.click();
+    await expect(history).not.toBeVisible();
+    await expect(studio.locator(".generation-group")).toHaveCount(1);
     expect(
       await page.evaluate(
         () =>

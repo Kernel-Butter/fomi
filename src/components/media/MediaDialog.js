@@ -1,5 +1,7 @@
 ﻿"use client";
 import { useContext, useEffect, useRef } from "react";
+import StudioDrawer from "../ui/StudioDrawer";
+import useBelow992 from "../../hooks/useBelow992";
 import {
   RouteNavigationContext,
   RouteProgress,
@@ -9,12 +11,10 @@ import {
 export default function MediaDialog({ children }) {
   const router = useContext(RouteNavigationContext);
   const dialogRef = useRef(null);
+  const below992 = useBelow992();
   useEffect(() => {
-    const dialog = dialogRef.current;
     const previousFocus = document.activeElement;
-    if (!dialog.open) dialog.showModal();
     return () => {
-      if (dialog.open) dialog.close();
       if (previousFocus instanceof HTMLElement && previousFocus.isConnected) {
         requestAnimationFrame(() =>
           previousFocus.focus({ preventScroll: true }),
@@ -22,6 +22,28 @@ export default function MediaDialog({ children }) {
       }
     };
   }, []);
+  useEffect(() => {
+    if (below992) return;
+    const dialog = dialogRef.current;
+    if (!dialog.open) dialog.showModal();
+    return () => {
+      if (dialog.open) dialog.close();
+    };
+  }, [below992]);
+  if (below992)
+    return (
+      <StudioDrawer
+        title="Media preview"
+        hideHeader
+        aria-labelledby="media-modal-title"
+        open
+        onClose={() => router.back()}
+        rootClassName="media-preview-drawer"
+      >
+        <RouteProgress />
+        {children}
+      </StudioDrawer>
+    );
   return (
     <dialog
       ref={dialogRef}

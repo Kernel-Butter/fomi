@@ -2,6 +2,7 @@
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Icon from "../Icon";
+import CloseButton from "../ui/CloseButton";
 import Link from "../navigation/AppLink";
 import { RouteNavigationContext } from "../navigation/RouteProgressProvider";
 import { usePathname } from "next/navigation";
@@ -85,15 +86,12 @@ export default function MediaPreview({ id, modal = false }) {
           {item?.type === "video" ? "Video preview" : "Image preview"}
         </h1>
         {modal ? (
-          <button
-            type="button"
+          <CloseButton
             ref={closeRef}
             className="media-preview-close"
             aria-label="Close preview"
             onClick={close}
-          >
-            <Icon name="close" size={24} strokeWidth={2.2} />
-          </button>
+          />
         ) : (
           <Link
             className="media-preview-return"

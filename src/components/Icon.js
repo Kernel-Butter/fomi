@@ -1,5 +1,6 @@
 export default function Icon({ name, size = 18, ...props }) {
   const paths = {
+    menu: "M4 6h16M4 12h16M4 18h16",
     profile: "M20 21v-2a7 7 0 0 0-14 0v2M12 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z",
     previous: "m15 5-7 7 7 7",
     next: "m9 5 7 7-7 7",

@@ -190,7 +190,7 @@ for (const viewport of [
           document.documentElement.scrollHeight <= window.innerHeight,
       ),
     ).toBe(true);
-    if (viewport.width >= 640 && viewport.width <= 1199)
+    if (viewport.width <= 1199)
       await studio(page)
         .getByRole("button", { name: "Create image", exact: true })
         .click();

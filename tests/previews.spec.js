@@ -3,6 +3,10 @@
 async function generate(page, type = "image", count = 4) {
   await page.goto(`/${type}studio`);
   const studio = page.locator(`#${type}-studio`);
+  if (page.viewportSize().width <= 1199)
+    await studio
+      .getByRole("button", { name: `Create ${type}`, exact: true })
+      .click();
   if (count !== 4)
     await studio
       .getByRole("combobox", { name: "Number of images", exact: true })
@@ -14,9 +18,14 @@ async function generate(page, type = "image", count = 4) {
   await expect(
     studio.getByRole("status", { name: "Generation updates" }),
   ).toContainText("ready");
-  await expect(
-    studio.getByRole("button", { name: "Generate", exact: true }),
-  ).toBeEnabled();
+  if (page.viewportSize().width >= 1200)
+    await expect(
+      studio.getByRole("button", { name: "Generate", exact: true }),
+    ).toBeEnabled();
+  else
+    await expect(
+      studio.getByRole("dialog", { name: `Create ${type}`, exact: true }),
+    ).not.toBeVisible();
   return studio;
 }
 
@@ -157,25 +166,34 @@ test("backdrop closes the modal and normal navigation clears an unavailable prev
   await expect(studio.locator(".generation-group")).toHaveCount(1);
 });
 
-test("preview remains usable within a mobile viewport", async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 });
-  const studio = await generate(page);
-  await studio
-    .getByRole("link", { name: "Open image preview", exact: true })
-    .first()
-    .click();
-  const modal = page.getByRole("dialog", { name: "Image preview" });
-  await expect(modal).toBeVisible();
-  const bounds = await modal.boundingBox();
-  expect(bounds.x).toBeGreaterThanOrEqual(0);
-  expect(bounds.y).toBeGreaterThanOrEqual(0);
-  expect(bounds.x + bounds.width).toBeLessThanOrEqual(390);
-  expect(bounds.y + bounds.height).toBeLessThanOrEqual(844);
-  await modal
-    .getByRole("button", { name: "Close preview", exact: true })
-    .click();
-  await expect(page).toHaveURL(/\/imagestudio$/);
-});
+for (const width of [390, 991, 992]) {
+  test(`preview placement respects the 992px breakpoint at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 844 });
+    const studio = await generate(page);
+    await studio
+      .getByRole("link", { name: "Open image preview", exact: true })
+      .first()
+      .click();
+    const modal = page.getByRole("dialog", { name: "Image preview" });
+    await expect(modal).toBeVisible();
+    const bounds = await modal.boundingBox();
+    expect(bounds.x).toBeGreaterThanOrEqual(0);
+    expect(bounds.y).toBeGreaterThanOrEqual(0);
+    expect(bounds.x + bounds.width).toBeLessThanOrEqual(width);
+    expect(bounds.y + bounds.height).toBeLessThanOrEqual(844);
+    if (width < 992) {
+      expect(bounds.x).toBe(0);
+      expect(bounds.width).toBe(width);
+      expect(bounds.y + bounds.height).toBeCloseTo(844, 0);
+    } else expect(bounds.width).toBeLessThan(width);
+    await modal
+      .getByRole("button", { name: "Close preview", exact: true })
+      .click();
+    await expect(page).toHaveURL(/\/imagestudio$/);
+  });
+}
 
 test("preview arrows navigate the same generation and Close returns directly to the studio", async ({
   page,

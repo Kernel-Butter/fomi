@@ -149,6 +149,18 @@ A thin, fixed coral line uses React transition state to indicate client-side rou
 
 ## Tablet layout
 
-At 640-1199px, a Create button opens generation controls in an accessible 340px drawer, leaving the results feed full-width. Selecting a prompt card opens and focuses the drawer; generating closes it. Escape, the close button, or the backdrop dismiss it. Advanced settings opens above the drawer, and Escape closes only that top dialog. Controls remain mounted so drafts and saved preferences survive resizing and route changes.
+At 768-1199px, a Create button opens generation controls in an Ant Design bottom drawer, leaving the results feed full-width. Selecting a prompt card opens and focuses the drawer; generating closes it. Escape, the close button, or the backdrop dismiss it. Advanced settings uses a separate bottom drawer above the controls, and Escape closes only that top drawer. Controls remain mounted so drafts and saved preferences survive resizing and route changes.
 
-Portrait tablets use two result columns; landscape tablets at 900px or wider use three. Prompts sit above each generation's images. Header utility labels collapse to accessible icons, common touch controls are at least 44px tall, and advanced references use a two-column grid. Desktop sidebars and the mobile stacked layout remain available outside the tablet breakpoint.
+Portrait tablets use two result columns; landscape tablets at 900px or wider use three. Prompts sit above each generation's images. Header utility labels collapse to accessible icons, common touch controls are at least 44px tall, and advanced references use a two-column grid. Desktop sidebars remain available at 1200px and wider.
+
+Tablet history uses a right-edge handle and a vertical conversation list. Each conversation is a separate row with a static thumbnail stack, prompt, and media count. Stacks do not fan out on hover; selecting a row returns to its conversation.
+
+Below 992px, Create is a full-width button below the scrolling conversation feed, matching mobile. At 992-1199px it stays above the feed.
+
+## Mobile layout
+
+At 320-767px, the studio stays in one viewport and only the conversation feed scrolls. Create opens a bottom drawer for the prompt and generation controls. Selecting a suggestion opens the same drawer; generating closes it without losing the draft. Advanced settings scrolls independently above it.
+
+Below 1200px, a hamburger button opens navigation containing workspace links, Gallery, and Support. Route selection closes the menu. At 992-1199px navigation and history use side drawers; below 992px all overlays, including navigation, history, and image/video previews, open from the bottom. Desktop retains its header navigation and inline generation controls. Ant Design styles are rendered through its Next.js registry; the shared `StudioDrawer` component supplies consistent colors and sizing, and `CloseButton` supplies the same close icon across previews and drawers. Advanced settings also uses a bottom drawer on desktop.
+
+Once conversations exist, a History handle appears on the right edge and opens a bottom drawer. Each entry represents a conversation, shows its image stack and count, and returns to that conversation when selected. Image and video histories stay separate. Drawers support Escape, backdrop dismissal, focus restoration, safe-area spacing, and reduced motion.
