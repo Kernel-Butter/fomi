@@ -87,7 +87,7 @@ export default function AppShell({ type = 'image', active = true }) {
     <div className="workspace">
       <ControlPanel type={type} prompt={prompt} setPrompt={setPrompt} loading={loading} onGenerate={create}/>
       <main id={`${type}-results`} ref={resultsRef} onScroll={handleScroll} className="results-scroll" tabIndex={0} aria-label="Generation conversation and results">
-        <ResultsFeed groups={groups} onSample={value => { setPrompt(value); document.getElementById(`${type}-prompt`)?.focus(); }} error={error}/>
+        <ResultsFeed active={active} type={type} groups={groups} onSample={value => { setPrompt(value); document.getElementById(`${type}-prompt`)?.focus(); }} error={error}/>
       </main>
     </div>
     <div className="sr-only" role="status" aria-live="polite">{announcement}</div>
