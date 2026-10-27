@@ -51,42 +51,51 @@ export default function HistoryTray({ ref, type, groups, onSelect }) {
     [open],
   );
 
-  if (!hasHistory) return null;
   return (
-    <div className={`history-tray ${open ? "is-open" : ""}`}>
-      <div
-        id={`${type}-history-tray`}
-        ref={contentRef}
-        className="history-tray-body"
-        inert={!open ? true : undefined}
-      >
-        <div className="history-tray-content">
-          <HistoryStrip
-            type={type}
-            historyGroups={groups}
-            onSelect={onSelect}
-            stripRef={stripRef}
-          />
-        </div>
-      </div>
-      <div className="history-tray-toolbar">
-        <button
-          ref={toggleRef}
-          type="button"
-          className="history-tray-toggle"
-          aria-expanded={open}
-          aria-controls={`${type}-history-tray`}
-          aria-label={open ? "Collapse history" : "Show history"}
-          onClick={() => {
-            if (open) {
-              setOpen(false);
-              toggleRef.current?.focus();
-            } else expand();
-          }}
-        >
-          <span>History</span>
-          <Icon name="chevron" size={15} />
-        </button>
+    <div
+      className={`history-reveal ${hasHistory ? "has-history" : ""}`}
+      aria-hidden={!hasHistory}
+      inert={!hasHistory ? true : undefined}
+    >
+      <div className="history-reveal-inner">
+        {hasHistory && (
+          <div className={`history-tray ${open ? "is-open" : ""}`}>
+            <div
+              id={`${type}-history-tray`}
+              ref={contentRef}
+              className="history-tray-body"
+              inert={!open ? true : undefined}
+            >
+              <div className="history-tray-content">
+                <HistoryStrip
+                  type={type}
+                  historyGroups={groups}
+                  onSelect={onSelect}
+                  stripRef={stripRef}
+                />
+              </div>
+            </div>
+            <div className="history-tray-toolbar">
+              <button
+                ref={toggleRef}
+                type="button"
+                className="history-tray-toggle"
+                aria-expanded={open}
+                aria-controls={`${type}-history-tray`}
+                aria-label={open ? "Collapse history" : "Show history"}
+                onClick={() => {
+                  if (open) {
+                    setOpen(false);
+                    toggleRef.current?.focus();
+                  } else expand();
+                }}
+              >
+                <span>History</span>
+                <Icon name="chevron" size={15} />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
