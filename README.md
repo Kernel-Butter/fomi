@@ -59,7 +59,7 @@ Returns `{ "items": [...] }` after 1.2-1.9 seconds. Each item contains `id`, `ty
 ## Demo limitations
 
 - The initial feed and history are empty until generation. Each studio keeps its prompts, settings, generations, and history across route changes until the browser is refreshed.
-- Seed, negative prompt, and style selections are preview controls; they do not affect mock output.
+- Advanced settings open a visual modal with style, color, camera, seed, negative prompt, sampling steps, and guidance controls. Apply saves preferences per studio; Cancel discards edits and Reset restores defaults. These preferences accompany generation requests but do not affect the local mock output.
 - Colors follow the written brief approximately; an exact mockup image was not available for comparison.
 - Support uses a placeholder email address.
 - Local media replaces reference artwork. Image source: images.unsplash.com. Video sources: interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4 and media.w3.org/2010/05/bunny/trailer.mp4.
