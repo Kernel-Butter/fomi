@@ -1,21 +1,23 @@
-﻿import { makeItems } from "../../../lib/mockData";
+﻿import { getSession } from "../../../lib/server/store";
+import { readJson, respond } from "../../../lib/server/http";
+import { submitJob } from "../../../lib/server/service";
 import { isValidGenerationRequest } from "../../../lib/generationValidation";
+import { ServiceError } from "../../../lib/server/store";
 
-export async function POST(request) {
-  let data;
-  try {
-    data = await request.json();
-  } catch {
-    return Response.json({ error: "Invalid request." }, { status: 400 });
-  }
-  if (!isValidGenerationRequest(data)) {
-    return Response.json(
-      { error: "Please check your generation options." },
-      { status: 400 },
-    );
-  }
-  await new Promise((resolve) =>
-    setTimeout(resolve, 1200 + Math.random() * 700),
-  );
-  return Response.json({ items: makeItems(data) });
+export function POST(request) {
+  return respond(async () => {
+    const data = await readJson(request);
+    if (!isValidGenerationRequest(data))
+      throw new ServiceError(400, "Please check your generation options.");
+    return {
+      data: {
+        job: submitJob(
+          getSession(request),
+          data,
+          request.headers.get("x-mock-failure") === "once",
+        ),
+      },
+      status: 202,
+    };
+  });
 }

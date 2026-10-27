@@ -1,30 +1,5 @@
 ﻿import { test, expect } from "@playwright/test";
 
-async function mockGeneration(page) {
-  let generation = 0;
-  await page.route("**/api/generate", async (route) => {
-    const data = route.request().postDataJSON();
-    const id = ++generation;
-    await route.fulfill({
-      json: {
-        items: Array.from({ length: data.count }, (_, index) => ({
-          id: `${id}-${index}`,
-          type: data.type,
-          prompt: data.prompt,
-          model: data.model,
-          src:
-            data.type === "video"
-              ? "/videos/sample-1.mp4"
-              : "/images/sample-5.jpg",
-          poster: "/images/sample-5.jpg",
-          width: 768,
-          height: 1024,
-        })),
-      },
-    });
-  });
-}
-
 function studio(page, type = "image") {
   return page.locator(`#${type}-studio`);
 }
@@ -43,7 +18,12 @@ async function generate(page, prompt, type = "image") {
   const current = studio(page, type);
   await current.getByLabel("Your prompt", { exact: true }).fill(prompt);
   await current.getByRole("button", { name: "Generate", exact: true }).click();
-  await expect(current.getByRole("status")).toContainText("ready");
+  await expect(
+    current.getByRole("status", { name: "Generation updates" }),
+  ).toContainText("ready");
+  await expect(
+    current.getByRole("button", { name: "Generate", exact: true }),
+  ).toBeEnabled();
 }
 
 test("invalid JSON bodies return 400 rather than a server error", async ({
@@ -66,7 +46,6 @@ test("invalid JSON bodies return 400 rather than a server error", async ({
 test("drafts, settings and completed chats survive navigation but reset on refresh", async ({
   page,
 }) => {
-  await mockGeneration(page);
   await page.goto("/imagestudio");
   const image = studio(page);
   await expect(image.getByRole("button", { name: "Show history" })).toHaveCount(
@@ -145,7 +124,6 @@ test("advanced settings share styles, discard cancelled edits, and save applied 
 test("history is one entry per conversation and clicking it does not duplicate chats", async ({
   page,
 }) => {
-  await mockGeneration(page);
   await page.goto("/imagestudio");
   const image = studio(page);
   await generate(page, "First conversation");
@@ -173,7 +151,6 @@ test("history is one entry per conversation and clicking it does not duplicate c
 });
 
 test("video pauses when leaving its retained studio", async ({ page }) => {
-  await mockGeneration(page);
   await page.goto("/videostudio");
   const videoStudio = studio(page, "video");
   await generate(page, "A moving landscape", "video");
@@ -249,9 +226,11 @@ test("advanced values are validated and supported style options are consistent",
     });
     expect(response.status()).toBe(400);
   }
+  const session = await (await request.post("/api/sessions")).json();
   const response = await request.post("/api/generate", {
+    headers: { "X-Session-ID": session.id },
     data: { ...base, advanced: defaultAdvanced },
   });
-  expect(response.status()).toBe(200);
-  expect((await response.json()).items).toHaveLength(1);
+  expect(response.status()).toBe(202);
+  expect((await response.json()).job.status).toBe("queued");
 });

@@ -71,3 +71,5 @@ export const counts = [1, 2, 3, 4];
 export const ratios = ["1:1", "3:4", "16:9"];
 export const models = ["Frame 1.0", "Flux", "Studio"];
 export const samplingSteps = [16, 24, 28, 36, 50];
+
+export const defaultOptions = { count: 4, ratio: "3:4", model: "Frame 1.0" };

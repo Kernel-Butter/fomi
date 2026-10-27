@@ -1,13 +1,9 @@
-﻿import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-
-import {
-  defaultAdvanced,
-  references,
-  samplingSteps,
-} from "../../lib/generationConfig";
-
 export default function AdvancedSettingsModal({
+  config,
+  saving,
+  error,
   open,
   active,
   value,
@@ -15,6 +11,7 @@ export default function AdvancedSettingsModal({
   onDismiss,
   type,
 }) {
+  const { defaultAdvanced, references, samplingSteps } = config;
   const dialogRef = useRef(null);
   const [tab, setTab] = useState("Styles");
   const [draft, setDraft] = useState(value);
@@ -36,7 +33,10 @@ export default function AdvancedSettingsModal({
       ref={dialogRef}
       className="advanced-modal"
       aria-labelledby={`${type}-advanced-title`}
-      onCancel={onDismiss}
+      onCancel={(event) => {
+        event.preventDefault();
+        onDismiss();
+      }}
       onClose={onDismiss}
       onClick={(event) => {
         if (event.target !== event.currentTarget) return;
@@ -56,12 +56,18 @@ export default function AdvancedSettingsModal({
           type="button"
           className="modal-close"
           aria-label="Close advanced settings"
+          disabled={saving}
           onClick={onDismiss}
         >
           ×
         </button>
       </div>
       <div className="advanced-modal-body">
+        {error && (
+          <p className="settings-error" role="alert">
+            {error}
+          </p>
+        )}
         <h2 id={`${type}-advanced-title`}>Advanced settings</h2>
         <p className="advanced-intro">
           Set the mood. Shape the details. Make it yours.
@@ -131,6 +137,7 @@ export default function AdvancedSettingsModal({
               Leave empty for a random starting point
             </span>
             <input
+              disabled={saving}
               id={`${type}-seed`}
               type="number"
               min="0"
@@ -145,6 +152,7 @@ export default function AdvancedSettingsModal({
             Sampling steps
             <span className="advanced-hint">Refinement per generation</span>
             <select
+              disabled={saving}
               id={`${type}-steps`}
               value={draft.steps}
               onChange={(event) => update("steps", Number(event.target.value))}
@@ -189,6 +197,7 @@ export default function AdvancedSettingsModal({
               Details you would like to leave out
             </span>
             <textarea
+              disabled={saving}
               id={`${type}-negative`}
               rows="2"
               maxLength={2000}
@@ -203,20 +212,33 @@ export default function AdvancedSettingsModal({
         <button
           type="button"
           className="modal-reset"
+          disabled={saving}
           onClick={() => setDraft({ ...defaultAdvanced })}
         >
           Reset defaults
         </button>
         <div>
-          <button type="button" className="modal-cancel" onClick={onDismiss}>
+          <button
+            type="button"
+            className="modal-cancel"
+            disabled={saving}
+            onClick={onDismiss}
+          >
             Cancel
           </button>
           <button
             type="button"
             className="modal-apply"
-            onClick={() => onApply(draft)}
+            disabled={saving}
+            onClick={() => {
+              if (dialogRef.current.querySelector(":invalid")) {
+                dialogRef.current.querySelector(":invalid").reportValidity();
+                return;
+              }
+              onApply(draft);
+            }}
           >
-            Apply settings
+            {saving ? "Saving..." : "Apply settings"}
           </button>
         </div>
       </footer>

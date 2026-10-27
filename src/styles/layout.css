@@ -261,3 +261,20 @@ body > .app-shell:not(.header-shell):not(.studio-shell) {
     padding-bottom: 0;
   }
 }
+
+.studio-initializing {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 14px;
+  color: #8a786d;
+}
+.studio-initializing button {
+  background: #e59d88;
+  color: #42251d;
+  padding: 9px 18px;
+  border-radius: 999px;
+}

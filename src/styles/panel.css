@@ -188,3 +188,29 @@
     width: 100%;
   }
 }
+
+.settings-save-status {
+  min-height: 18px;
+  margin: -12px 4px 8px;
+  font-size: 10px;
+  color: #8a786d;
+}
+.settings-error {
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  border-radius: 10px;
+  background: #fae4dd;
+  color: #8c3428;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.settings-error button {
+  margin-top: 6px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.control-panel button:disabled,
+.control-panel select:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}

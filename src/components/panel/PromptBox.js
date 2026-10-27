@@ -5,6 +5,7 @@ export default function PromptBox({
   prompt,
   setPrompt,
   loading,
+  disabled = false,
 }) {
   return (
     <div className="prompt-box">
@@ -22,7 +23,7 @@ export default function PromptBox({
       <button
         className="generate-button"
         type="submit"
-        disabled={!prompt.trim() || loading}
+        disabled={!prompt.trim() || loading || disabled}
       >
         {loading ? (
           <span className="spinner" />

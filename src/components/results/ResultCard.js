@@ -70,6 +70,7 @@ function ResultCard({ item, index, priority, active }) {
         src={item.poster || item.src}
         fill
         sizes="(max-width: 639px) 46vw, (max-width: 1023px) 23vw, (max-width: 1536px) 18vw, 260px"
+        style={item.presentation}
         alt={item.prompt}
         priority={priority}
       />
@@ -80,6 +81,7 @@ function ResultCard({ item, index, priority, active }) {
               ref={videoRef}
               src={item.src}
               poster={item.poster}
+              style={item.presentation}
               muted
               loop
               playsInline

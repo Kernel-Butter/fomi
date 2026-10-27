@@ -56,6 +56,7 @@ export default function HistoryStrip({
                 >
                   <Image
                     src={item.poster || item.src}
+                    style={item.presentation}
                     alt={group.prompt}
                     fill
                     sizes="72px"

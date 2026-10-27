@@ -183,3 +183,51 @@
     border-radius: 12px;
   }
 }
+
+.conversation-details {
+  min-width: 0;
+}
+.job-status {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin: 12px 4px;
+  color: #927567;
+  font-size: 11px;
+}
+.job-status progress {
+  width: 100%;
+  height: 5px;
+  accent-color: #b57963;
+}
+.generation-seed {
+  margin: 8px 4px;
+  font-size: 10px;
+  color: #9b8678;
+}
+.generation-failure {
+  min-height: 150px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 14px;
+  padding: 22px;
+  border: 1px solid #e8c6b9;
+  border-radius: 16px;
+  background: #fff8f4;
+  color: #884837;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.generation-failure button {
+  padding: 8px 15px;
+  border-radius: 999px;
+  background: #e59d88;
+  color: #42251d;
+}
+.error-message button {
+  margin-top: 8px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

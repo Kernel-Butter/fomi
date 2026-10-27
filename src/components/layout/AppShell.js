@@ -15,17 +15,17 @@ export default function AppShell({ type, active }) {
   const handledScroll = useRef(null);
   const {
     groups,
+    history,
+    retry,
+    retryHistory,
     announcement,
     error,
     loading,
     scrollRequest,
     create,
     loadHistory,
-  } = useGenerations();
-  const historyGroups = groups
-    .slice()
-    .reverse()
-    .filter((group) => !group.loading && group.items.length > 0);
+  } = useGenerations(type);
+  const historyGroups = history;
   const registerGroup = useCallback((id, element) => {
     if (element) groupElements.current.set(id, element);
     else groupElements.current.delete(id);
@@ -92,6 +92,9 @@ export default function AppShell({ type, active }) {
           }}
         >
           <ResultsFeed
+            onRetry={retry}
+            onRetryHistory={retryHistory}
+            busy={loading}
             registerGroup={registerGroup}
             active={active}
             type={type}
@@ -101,7 +104,12 @@ export default function AppShell({ type, active }) {
           />
         </main>
       </div>
-      <div className="sr-only" role="status" aria-live="polite">
+      <div
+        className="sr-only"
+        role="status"
+        aria-label="Generation updates"
+        aria-live="polite"
+      >
         {announcement}
       </div>
     </div>

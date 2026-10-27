@@ -1,8 +1,8 @@
-# Fomi Studio
+﻿# Fomi Studio
 
-Responsive image and video generation demo built with Next.js App Router, JavaScript, React, and Tailwind CSS.
+A responsive image/video studio with an integrated dummy backend. Built with Next.js App Router, JavaScript, React, and Tailwind CSS. No AI account, paid service, database, or environment variables are needed for the local demo.
 
-## Setup
+## Run
 
 Requires Node.js 20.9 or newer.
 
@@ -11,28 +11,45 @@ npm ci
 npm run dev
 ```
 
-Open http://localhost:3000. On Windows PowerShell, use `npm.cmd` if script execution policy blocks `npm`.
+Open http://localhost:3000. Use `npm.cmd` on Windows if PowerShell blocks `npm`.
 
 ```sh
 npm run build
 npm start
 ```
 
-Deploy to Vercel with default Next.js settings. No environment variables are required. Installing dependencies and fetching Inter through next/font requires network access.
+Dependency installation and the initial Inter font build require network access. Media is served locally at runtime.
 
-## Routes and usage
+## Studio behavior
 
-- `/` redirects to `/imagestudio`.
-- `/imagestudio` generates images; `/videostudio` generates videos.
-- The second and third header icons and the panel toggle switch studios. The indicator slides between active tabs.
-- Home, wand, and folder are known unavailable routes: they show the fallback screen through normal client navigation, preserving studio state. These routes return HTTP 200; genuinely unknown URLs return HTTP 404.
-- Enter a prompt or choose an example, select count, ratio, and model, then click Generate or press Ctrl/Cmd + Enter.
-- History thumbnails load saved samples into the feed. Gallery focuses history; View All scrolls to the remaining thumbnails.
-- Videos load on hover or playback activation. Their button pauses playback.
+- `/` redirects to `/imagestudio`; `/videostudio` has separate prompts, settings, jobs, and history.
+- A fresh page creates a new backend session. Route changes preserve both studios until refresh.
+- Models, ratios, counts, visual references, defaults, and prompt cards load from the configuration API.
+- Count, ratio, model, and style changes save through the settings API. Advanced Apply saves preferences; Cancel discards edits. Reset defaults changes the modal draft; applying that draft resets advanced preferences through the API while preserving output options.
+- Enter a prompt or select a card, then Generate or press Ctrl/Cmd + Enter. Jobs display queued/processing progress, skeletons, and completed results at the bottom of the chat.
+- Failed or interrupted generations retain their prompt and offer Retry. Network retries resume an existing job when possible.
+- History comes from the backend and contains only completed generations: one stacked entry per conversation. Gallery opens the tray; clicking a preview retrieves and scrolls to that conversation.
+- Videos load on interaction and pause when leaving the studio or hiding the browser tab.
+- Home, wand, and folder show a fallback screen through normal client navigation (HTTP 200), preserving studio state. Unknown URLs return HTTP 404.
 
-## Mock API
+## API
 
-`POST /api/generate` accepts:
+Start with `POST /api/sessions`, then send the returned `id` as the `X-Session-ID` header. The browser manages this automatically in memory. No session ID is saved in localStorage or cookies.
+
+| Endpoint                          | Behavior                                                                 |
+| --------------------------------- | ------------------------------------------------------------------------ |
+| `GET /api/config`                 | Public models, presets, supported values, defaults, and polling interval |
+| `POST /api/sessions`              | Create an isolated demo session; HTTP 201                                |
+| `GET /api/settings?type=image`    | Retrieve studio preferences (`image` or `video`)                         |
+| `PUT /api/settings?type=image`    | Save `{ options, advanced }`                                             |
+| `DELETE /api/settings?type=image` | Reset advanced settings; keep count, ratio, and model                    |
+| `POST /api/generate`              | Submit a generation; HTTP 202 with `{ job }`                             |
+| `GET /api/jobs/:id`               | Poll progress, error, metadata, and final items                          |
+| `POST /api/jobs/:id/retry`        | Restart a failed job under the same conversation ID                      |
+| `GET /api/history?type=image`     | Completed groups, newest first, scoped to session and type               |
+| `GET /api/history/:id`            | Retrieve a complete, completed conversation                              |
+
+Example generation body:
 
 ```json
 {
@@ -40,48 +57,51 @@ Deploy to Vercel with default Next.js settings. No environment variables are req
   "count": 4,
   "ratio": "3:4",
   "model": "Frame 1.0",
-  "type": "image"
+  "type": "image",
+  "advanced": {
+    "style": "Natural",
+    "color": "Original",
+    "camera": "Auto",
+    "seed": "42",
+    "negative": "unwanted text, blur",
+    "guidance": 7,
+    "steps": 28
+  }
 }
 ```
 
-Allowed values: count 1-4, ratio `1:1` / `3:4` / `16:9`, model `Frame 1.0` / `Flux` / `Studio`, type `image` / `video`. Prompts must contain text and be at most 5,000 characters.
+Supported values come from `/api/config`. Prompts must contain text and be at most 5,000 characters; negative prompts are limited to 2,000. Seed is an unsigned 32-bit integer or an empty string for random. `advanced` may be omitted to use saved preferences. An optional UUID `requestId` makes repeated submissions idempotent within the session; the frontend supplies one automatically.
 
-Returns `{ "items": [...] }` after 1.2-1.9 seconds. Each item contains `id`, `type`, `src`, `poster`, `width`, `height`, `prompt`, and `model`. Invalid options return HTTP 400. The API serves local samples and does not call an AI provider.
+Jobs transition `queued -> processing -> completed` or `failed`. Polling computes elapsed progress without a background worker. Images take roughly 1.5-2 seconds with default settings; videos take longer. Each completed item includes `id`, `type`, `src`, `poster`, `width`, `height`, `prompt`, `model`, `seed`, and presentation metadata.
 
-## Structure
+The seed, prompt, model, and all advanced fields deterministically influence sample selection. Style and color also affect display filters; camera changes cropping position; steps and output count influence simulated duration. These are simulations using local media, not newly synthesized artwork. The same explicit seed and request parameters reproduce the same samples and presentation.
 
-- `src/app`: routes, shared layout, styles, and API handler.
-- `src/components`: header, history, generation controls, and results.
-- `src/hooks/useGenerations.js`: generation requests, loading, errors, and history selection.
-- `src/lib`: mock data and API client.
-- `public/images` and `public/videos`: local sample media.
+Errors use `{ "error": "Actionable message" }` with HTTP 400 for invalid input, 401 for missing session, 404 for unavailable session-owned resources, 409 for invalid job state, 410 for expired sessions, and 429/503 for demo capacity limits.
 
-## Demo limitations
+For a reproducible failure scenario, send `X-Mock-Failure: once` on generation submission. The job fails on its first attempt and succeeds when retried. Normal UI requests do not deliberately fail; the regression suite exercises this scenario.
 
-- The initial feed and history are empty until generation. Each studio keeps its prompts, settings, generations, and history across route changes until the browser is refreshed.
-- Advanced settings open a visual modal with style, color, camera, seed, negative prompt, sampling steps, and guidance controls. Apply saves preferences per studio; Cancel discards edits and Reset restores defaults. These preferences accompany generation requests but do not affect the local mock output.
-- Colors follow the written brief approximately; an exact mockup image was not available for comparison.
-- Support uses a placeholder email address.
-- Local media replaces reference artwork. Image source: images.unsplash.com. Video sources: interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4 and media.w3.org/2010/05/bunny/trailer.mp4.
+## Architecture
 
-## Commit format
+- `src/lib/server/store.js`: isolated in-memory sessions, preferences, and jobs.
+- `src/lib/server/service.js`: settings, job lifecycle, retries, and history.
+- `src/lib/server/simulator.js`: deterministic sample provider; replace this boundary with a real AI adapter later.
+- `src/lib/server/http.js`: consistent JSON responses and error handling.
+- `src/lib/generationConfig.js` and `promptPresets.js`: API configuration data.
+- `src/lib/api.js`: frontend API adapter and cancellable polling delay.
+- `src/hooks/useGenerations.js`: optimistic chat placeholders, polling, retries, and API history.
+- `StudioWorkspace`: initializes configuration/session/settings and retains the two studio components across route navigation.
+- `HistoryTray`: owns tray interaction; Gallery uses React callbacks and navigation uses refs.
+- `src/styles`: feature-specific styles and breakpoints.
 
-```text
-<type>: <concise summary>
+## Limits and deployment
 
-- What changed and why
-- Validation performed
-```
+The mock store is process-local and volatile. Refresh starts a new session; server restarts discard all sessions. Idle sessions expire after eight hours. The demo caps active sessions at 200 and generations per session at 500. Session IDs isolate demo data but are not account authentication.
 
-Use `feat`, `fix`, `docs`, `style`, `refactor`, or `chore` as appropriate. Keep commits focused and record only checks actually performed.
+The project builds with default Next.js/Vercel settings. For reliable sessions on Vercel or other multi-instance/serverless hosts, replace the mock store with shared storage; process memory is not shared across instances and may disappear between requests. The complete dummy-backend demonstration should run in one Node.js process with `npm start` until that adapter is replaced.
 
-## Architecture and checks
+There is no real AI generation, persistent account storage, billing, or external messaging. Support remains a placeholder email address. Local images come from images.unsplash.com; sample videos come from interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4 and media.w3.org/2010/05/bunny/trailer.mp4.
 
-- `StudioWorkspace` retains separate image and video sessions in the shared layout until refresh. Inactive videos pause; returning to a studio restores its feed position.
-- `AppShell` composes controls, results, and `HistoryTray`. Gallery uses React context callbacks; result and prompt navigation use refs rather than global events or DOM IDs.
-- `src/lib/generationConfig.js` is the shared source for model options, style references, and advanced defaults. The API validates request shape and optional advanced values before generating mock items.
-- `src/styles` contains feature-specific stylesheets with consolidated rules and breakpoints. `globals.css` contains the Tailwind directives.
-- Runtime dependencies remain Next.js and React. ESLint, Prettier, and Playwright are development tools.
+## Checks
 
 ```sh
 npm run lint
@@ -91,4 +111,15 @@ npx playwright install chromium
 npm test
 ```
 
-Browser regression checks cover malformed API bodies, advanced validation, retained studio state and refresh reset, modal Apply/Cancel, grouped history navigation, video pause on route changes, and viewport bounds at desktop, tablet, and mobile widths. The test runner starts its own production server on port 3102; build first.
+Playwright starts a production server on port 3102, so build first. Tests cover real API configuration/settings, session and studio isolation, deterministic outputs, job progress/retry, history retrieval, request validation, frontend recovery, route persistence/refresh reset, modal behavior, video playback, and viewport bounds. Failure injection is limited to tests; successful generation flows exercise the actual backend.
+
+Runtime dependencies remain Next.js and React. ESLint, Prettier, and Playwright are development-only tools.
+
+## Commit format
+
+```text
+<type>: <concise summary>
+
+- What changed and why
+- Validation performed
+```
