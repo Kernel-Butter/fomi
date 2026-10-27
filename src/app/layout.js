@@ -10,6 +10,7 @@ import "../styles/advanced.css";
 import "../styles/media-preview.css";
 import RouteProgressProvider from "../components/navigation/RouteProgressProvider";
 import "../styles/route-progress.css";
+import "../styles/tablet.css";
 import StudioWorkspace from "../components/layout/StudioWorkspace";
 const inter = Inter({ subsets: ["latin"], display: "swap" });
 export const metadata = {

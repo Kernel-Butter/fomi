@@ -164,7 +164,7 @@ body > .app-shell:not(.header-shell):not(.studio-shell) {
 .studio-session[hidden] {
   display: none;
 }
-@media (min-width: 1024px) and (max-width: 1250px) {
+@media (min-width: 1200px) and (max-width: 1250px) {
   .workspace {
     gap: 18px;
     grid-template-columns: 260px minmax(0, 1fr);
@@ -173,7 +173,7 @@ body > .app-shell:not(.header-shell):not(.studio-shell) {
     padding-inline: 28px;
   }
 }
-@media (min-width: 640px) and (max-width: 1023px) {
+@media (min-width: 640px) and (max-width: 1199px) {
   .app-shell {
     padding-inline: 22px;
   }
@@ -185,8 +185,19 @@ body > .app-shell:not(.header-shell):not(.studio-shell) {
     top: 20px;
   }
   .workspace {
-    grid-template-columns: 230px minmax(0, 1fr);
-    gap: 18px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+  .studio-shell > .workspace {
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+  .tabs a,
+  .header .utility {
+    min-height: 44px;
+  }
+  .header .utility {
+    min-width: 44px;
+    justify-content: center;
   }
   .header-actions {
     gap: 5px;

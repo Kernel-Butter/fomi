@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { memo, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "../navigation/AppLink";
@@ -70,7 +70,7 @@ function ResultCard({ item, index, priority, active }) {
       <Image
         src={item.poster || item.src}
         fill
-        sizes="(max-width: 639px) 46vw, (max-width: 1023px) 23vw, (max-width: 1536px) 18vw, 260px"
+        sizes="(min-width: 900px) and (max-width: 1199px) and (orientation: landscape) 31vw, (max-width: 639px) 46vw, (max-width: 1199px) 46vw, (max-width: 1536px) 18vw, 260px"
         style={item.presentation}
         alt={item.prompt}
         priority={priority}

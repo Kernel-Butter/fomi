@@ -1,0 +1,221 @@
+.controls-container {
+  position: static;
+  inset: auto;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: 100%;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  overflow: visible;
+}
+.controls-container[open] {
+  display: flex;
+  flex-direction: column;
+}
+.controls-container:not([open]) {
+  display: none;
+}
+.controls-container > .control-panel {
+  width: 100%;
+  flex: 0 1 auto;
+}
+.tablet-create-trigger,
+.tablet-drawer-heading {
+  display: none;
+}
+@media (min-width: 640px) and (max-width: 1199px) {
+  .tablet-create-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-self: start;
+    gap: 9px;
+    min-height: 44px;
+    padding: 10px 17px;
+    border: 1px solid #e6cabc;
+    border-radius: 999px;
+    background: #f6e5dc;
+    color: #5b3b2d;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .tablet-create-trigger > svg:last-child {
+    transform: rotate(-90deg);
+  }
+  .controls-container {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: min(340px, 90vw);
+    height: 100dvh;
+    max-height: 100dvh;
+    margin: 0;
+    border-radius: 0 24px 24px 0;
+    background: #f8ede8;
+    overflow: hidden;
+    box-shadow: 12px 0 50px #24140f30;
+  }
+  .controls-container[open] {
+    animation: tablet-drawer-enter 220ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .controls-container::backdrop {
+    background: #241b1759;
+    backdrop-filter: blur(4px);
+  }
+  .tablet-drawer-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 16px 8px;
+    flex: none;
+  }
+  .tablet-drawer-heading h2 {
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.4px;
+  }
+  .tablet-drawer-heading button {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #f0dfd5;
+    color: #634839;
+  }
+  .studio-shell .controls-container > .control-panel {
+    flex: 1;
+    min-height: 0;
+    max-height: 100%;
+    border: 0;
+    border-radius: 0;
+    padding: 12px 18px 24px;
+    align-self: stretch;
+  }
+  .controls-container .mode-toggle a {
+    display: grid;
+    place-items: center;
+    min-height: 44px;
+    font-size: 13px;
+  }
+  .controls-container .prompt-box {
+    height: 220px;
+    padding: 16px;
+  }
+  .controls-container .prompt-box textarea {
+    height: 145px;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .controls-container .generate-button {
+    min-height: 44px;
+    font-size: 13px;
+    padding: 10px 16px;
+  }
+  .controls-container .option-selects {
+    gap: 8px;
+    margin: 18px 0 24px;
+  }
+  .controls-container .option-selects select {
+    min-height: 44px;
+    font-size: 12px;
+    padding: 8px 4px;
+    border-radius: 10px;
+  }
+  .controls-container .accordion > button,
+  .controls-container .advanced-settings-trigger {
+    min-height: 44px;
+    font-size: 13px;
+  }
+  .controls-container .style-chips button {
+    min-height: 44px;
+    font-size: 12px;
+    padding: 8px 13px;
+  }
+  .history-tray-toggle {
+    min-height: 44px;
+    padding-inline: 20px;
+  }
+  .video-play {
+    width: 44px;
+    height: 44px;
+  }
+}
+@media (max-width: 639px) {
+  .controls-container {
+    height: auto;
+    max-height: 40dvh;
+  }
+}
+@keyframes tablet-drawer-enter {
+  from {
+    transform: translateX(-100%);
+    opacity: 0.6;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+@media (min-width: 900px) and (max-width: 1199px) and (orientation: landscape) {
+  .result-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (min-width: 640px) and (max-width: 1199px) {
+  .advanced-modal {
+    width: calc(100vw - 40px);
+    max-height: calc(100dvh - 32px);
+  }
+  .reference-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+  }
+  .reference-art {
+    aspect-ratio: 16/10;
+  }
+  .reference-card strong {
+    font-size: 14px;
+  }
+  .reference-description {
+    font-size: 12px;
+  }
+  .reference-tabs button {
+    min-height: 44px;
+  }
+  .advanced-modal-footer button,
+  .modal-close {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  .prompt-card-deck {
+    max-width: 620px;
+  }
+  .prompt-card:nth-child(1) {
+    --card-angle: -7deg;
+    --card-rise: 12px;
+  }
+  .prompt-card:nth-child(2) {
+    margin-left: -7%;
+    --card-angle: -2deg;
+    --card-rise: -4px;
+  }
+  .prompt-card:nth-child(3) {
+    margin-left: -5%;
+    --card-angle: 3deg;
+    --card-rise: -20px;
+  }
+  .prompt-card:nth-child(4) {
+    margin-left: -7%;
+    --card-angle: 6deg;
+    --card-rise: 8px;
+  }
+  .prompt-card-title {
+    font-size: 15px;
+  }
+}

@@ -73,6 +73,7 @@ export default function Header({ profile, application, features }) {
         <button
           className="utility"
           disabled={!features?.gallery}
+          aria-label="Gallery"
           onClick={openHistory}
         >
           <Icon name="gallery" size={15} />

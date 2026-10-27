@@ -1,4 +1,4 @@
-﻿import { test, expect } from "@playwright/test";
+import { test, expect } from "@playwright/test";
 
 function studio(page, type = "image") {
   return page.locator(`#${type}-studio`);
@@ -190,10 +190,16 @@ for (const viewport of [
           document.documentElement.scrollHeight <= window.innerHeight,
       ),
     ).toBe(true);
+    if (viewport.width >= 640 && viewport.width <= 1199)
+      await studio(page)
+        .getByRole("button", { name: "Create image", exact: true })
+        .click();
     await studio(page)
       .getByRole("button", { name: "Advanced settings", exact: true })
       .click();
-    const box = await page.getByRole("dialog").boundingBox();
+    const box = await page
+      .getByRole("dialog", { name: "Advanced settings", exact: true })
+      .boundingBox();
     expect(box.x).toBeGreaterThanOrEqual(0);
     expect(box.x + box.width).toBeLessThanOrEqual(viewport.width);
     expect(box.y + box.height).toBeLessThanOrEqual(viewport.height);

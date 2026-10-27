@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import HistoryTray from "../history/HistoryTray";
 import ControlPanel from "../panel/ControlPanel";
+import ResponsiveControls from "../panel/ResponsiveControls";
 import ResultsFeed from "../results/ResultsFeed";
 import useGenerations from "../../hooks/useGenerations";
 
@@ -9,6 +10,7 @@ export default function AppShell({ type, active }) {
   const [prompt, setPrompt] = useState("");
   const resultsRef = useRef(null);
   const promptRef = useRef(null);
+  const controlsRef = useRef(null);
   const historyRef = useRef(null);
   const groupElements = useRef(new Map());
   const savedScroll = useRef(0);
@@ -32,7 +34,8 @@ export default function AppShell({ type, active }) {
   }, []);
   const chooseSample = useCallback((value) => {
     setPrompt(value);
-    promptRef.current?.focus();
+    controlsRef.current?.open();
+    requestAnimationFrame(() => promptRef.current?.focus());
   }, []);
 
   useEffect(() => {
@@ -70,15 +73,20 @@ export default function AppShell({ type, active }) {
         onSelect={loadHistory}
       />
       <div className="workspace">
-        <ControlPanel
-          promptRef={promptRef}
-          active={active}
-          type={type}
-          prompt={prompt}
-          setPrompt={setPrompt}
-          loading={loading}
-          onGenerate={create}
-        />
+        <ResponsiveControls ref={controlsRef} type={type} active={active}>
+          <ControlPanel
+            promptRef={promptRef}
+            active={active}
+            type={type}
+            prompt={prompt}
+            setPrompt={setPrompt}
+            loading={loading}
+            onGenerate={(options) => {
+              controlsRef.current?.close();
+              return create(options);
+            }}
+          />
+        </ResponsiveControls>
         <main
           id={`${type}-results`}
           ref={resultsRef}

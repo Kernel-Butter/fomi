@@ -146,3 +146,9 @@ Reference artwork uses complete `imageUrl` values returned by the API. `applicat
 ## Route loading indicator
 
 A thin, fixed coral line uses React transition state to indicate client-side route loading. Internal links and programmatic preview navigation share `RouteProgressProvider`; modifier-clicks, external links, and downloads retain their normal behavior. The line does not occupy layout space, and reduced-motion users see a static loading line. Generation/API progress remains in the studio UI rather than triggering the route indicator.
+
+## Tablet layout
+
+At 640-1199px, a Create button opens generation controls in an accessible 340px drawer, leaving the results feed full-width. Selecting a prompt card opens and focuses the drawer; generating closes it. Escape, the close button, or the backdrop dismiss it. Advanced settings opens above the drawer, and Escape closes only that top dialog. Controls remain mounted so drafts and saved preferences survive resizing and route changes.
+
+Portrait tablets use two result columns; landscape tablets at 900px or wider use three. Prompts sit above each generation's images. Header utility labels collapse to accessible icons, common touch controls are at least 44px tall, and advanced references use a two-column grid. Desktop sidebars and the mobile stacked layout remain available outside the tablet breakpoint.

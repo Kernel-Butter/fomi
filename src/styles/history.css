@@ -224,7 +224,7 @@
 .history-tray-content .history-fade {
   z-index: 1;
 }
-@media (min-width: 640px) and (max-width: 1023px) {
+@media (min-width: 640px) and (max-width: 1199px) {
   .history-scroll {
     --preview-size: 60px;
   }
