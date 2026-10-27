@@ -1,0 +1,190 @@
+.control-panel {
+  background: #f8ede8;
+  border-right: 1px solid #dbc6bb;
+  border-radius: 20px;
+  padding: 15px 12px;
+  min-height: 405px;
+  position: sticky;
+  top: 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.mode-toggle {
+  display: flex;
+  padding: 3px;
+  background: white;
+  border-radius: 20px;
+  margin: 0 5px 12px;
+}
+.mode-toggle a {
+  width: 50%;
+  border-radius: 20px;
+  font-size: 10px;
+  padding: 3px;
+  text-align: center;
+}
+.mode-toggle .selected {
+  background: #f4e6e1;
+}
+.prompt-box {
+  height: 194px;
+  border: 1px solid #3e3b36;
+  background: white;
+  border-radius: 18px;
+  position: relative;
+  box-shadow: 0 3px 5px #50321b13;
+  padding: 15px 12px;
+}
+.prompt-box textarea {
+  resize: none;
+  background: transparent;
+  width: 100%;
+  height: 122px;
+  font-size: 11px;
+  line-height: 1.6;
+  outline-offset: 2px;
+}
+.prompt-box textarea::placeholder {
+  color: #7b746e;
+  opacity: 1;
+}
+.generate-button {
+  position: absolute;
+  bottom: 12px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 24px;
+  background: #e59d88;
+  padding: 8px 13px;
+  color: #42251d;
+  font-size: 11px;
+  font-weight: 500;
+  box-shadow: 0 2px 3px #a04e3120;
+}
+.generate-button:disabled {
+  opacity: 0.5;
+}
+.generate-button:disabled:has(.spinner) {
+  opacity: 0.85;
+}
+.option-selects {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr 1.4fr;
+  gap: 5px;
+  margin: 17px 0 22px;
+}
+.option-selects label {
+  min-width: 0;
+}
+.option-selects select {
+  width: 100%;
+  background: #fff;
+  border-radius: 6px;
+  font-size: 9px;
+  padding: 5px 2px;
+  cursor: pointer;
+  border: none;
+}
+.accordion {
+  margin-bottom: 16px;
+}
+.accordion > button {
+  position: relative;
+  width: 100%;
+  padding: 9px 15px;
+  background: white;
+  border-radius: 30px;
+  font-size: 12px;
+}
+.accordion > button svg {
+  position: absolute;
+  right: 20px;
+  top: 11px;
+  color: #9c9189;
+  transition: transform 0.2s;
+}
+.accordion.is-open > button svg {
+  transform: rotate(180deg);
+}
+.accordion-body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.2s;
+}
+.accordion.is-open .accordion-body {
+  grid-template-rows: 1fr;
+}
+.accordion-body > div {
+  overflow: hidden;
+}
+.accordion-content {
+  padding: 13px 3px 1px;
+}
+.style-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.style-chips button {
+  border: 1px solid #e2cdc2;
+  border-radius: 20px;
+  padding: 5px 8px;
+  font-size: 10px;
+}
+.style-chips .selected {
+  background: #e8b5a3;
+  border-color: #d89981;
+}
+.tabs a,
+.mode-toggle a {
+  text-decoration: none;
+}
+.studio-shell .control-panel {
+  position: static;
+  min-height: 0;
+  max-height: 100%;
+  align-self: start;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+@media (max-width: 639px) {
+  .control-panel {
+    position: static;
+    min-height: 0;
+    border-radius: 18px;
+    padding: 13px;
+  }
+  .mode-toggle {
+    max-width: 280px;
+    margin: 0 auto 11px;
+  }
+  .prompt-box {
+    height: 150px;
+  }
+  .prompt-box textarea {
+    height: 82px;
+    font-size: 12px;
+  }
+  .option-selects {
+    margin: 14px 0;
+    gap: 8px;
+  }
+  .option-selects select {
+    font-size: 11px;
+    padding: 7px 8px;
+  }
+  .accordion {
+    margin-bottom: 10px;
+  }
+  .accordion:last-child {
+    margin-bottom: 0;
+  }
+  .studio-shell .control-panel {
+    max-height: 40dvh;
+    width: 100%;
+  }
+}

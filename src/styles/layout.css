@@ -1,0 +1,263 @@
+button:hover:not(:disabled),
+a.utility:hover {
+  filter: brightness(0.97);
+}
+.app-shell {
+  max-width: 1680px;
+  margin: 0 auto;
+  padding: 0 36px 30px;
+  width: 100%;
+  min-height: 0;
+}
+.header {
+  height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+}
+.logo {
+  color: #161713;
+  text-decoration: none;
+}
+.logo svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.tab-nav {
+  width: 330px;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 24px;
+}
+.tab-track {
+  height: 9px;
+  border-radius: 20px;
+  background: #f6efeb;
+  border: 1px solid #efdfd8;
+  padding: 1px;
+}
+.tab-track span {
+  display: block;
+  width: 20%;
+  height: 5px;
+  background: #cc826a;
+  border-radius: 8px;
+  transition:
+    transform 320ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 180ms ease;
+  will-change: transform;
+}
+.tabs {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 3px;
+}
+.tabs a {
+  width: 20%;
+  height: 35px;
+  display: grid;
+  place-items: center;
+  color: #6c655f;
+  border-radius: 10px;
+}
+.tabs a.active {
+  color: #141512;
+}
+.tabs a:hover {
+  background: #f3e9e3;
+}
+.header-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.utility {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  padding: 7px 10px;
+  border: 1px solid #f1e8e3;
+  border-radius: 9px;
+  color: #736b65;
+  font-size: 10px;
+  text-decoration: none;
+  background: transparent;
+}
+.avatar {
+  border-radius: 50%;
+  object-fit: cover;
+  margin-left: 14px;
+}
+.workspace {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 22px;
+  align-items: start;
+}
+.not-found {
+  min-height: 65vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 16px;
+  padding: 32px;
+}
+.not-found h1 {
+  font-size: 28px;
+  font-weight: 600;
+}
+.not-found p {
+  font-size: 14px;
+}
+.not-found a {
+  display: inline-flex;
+  background: #e59d88;
+  color: #42251d;
+  border-radius: 999px;
+  padding: 12px 20px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.header-shell {
+  flex: none;
+  padding-bottom: 0;
+}
+.studio-shell {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: visible;
+}
+.studio-shell > .workspace {
+  flex: 1;
+  min-height: 0;
+  grid-template-rows: minmax(0, 1fr);
+  align-items: stretch;
+  overflow: hidden;
+}
+.results-scroll {
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  padding: 4px 6px 12px 4px;
+  overflow-anchor: none;
+}
+body > .app-shell:not(.header-shell):not(.studio-shell) {
+  flex: 1;
+  overflow-y: auto;
+}
+.studio-workspace,
+.studio-session {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+}
+.studio-workspace[hidden],
+.studio-session[hidden] {
+  display: none;
+}
+@media (min-width: 1024px) and (max-width: 1250px) {
+  .workspace {
+    gap: 18px;
+    grid-template-columns: 260px minmax(0, 1fr);
+  }
+  .app-shell {
+    padding-inline: 28px;
+  }
+}
+@media (min-width: 640px) and (max-width: 1023px) {
+  .app-shell {
+    padding-inline: 22px;
+  }
+  .header {
+    height: 80px;
+  }
+  .tab-nav {
+    width: 240px;
+    top: 20px;
+  }
+  .workspace {
+    grid-template-columns: 230px minmax(0, 1fr);
+    gap: 18px;
+  }
+  .header-actions {
+    gap: 5px;
+  }
+  .utility {
+    padding: 6px;
+  }
+  .avatar {
+    margin-left: 4px;
+  }
+  .utility span {
+    display: none;
+  }
+}
+@media (max-width: 639px) {
+  .app-shell {
+    padding: 0 16px 25px;
+  }
+  .header {
+    height: 100px;
+    align-items: flex-start;
+    padding-top: 18px;
+  }
+  .tab-nav {
+    top: 63px;
+    width: 100%;
+  }
+  .tab-track {
+    height: 5px;
+    width: 220px;
+    margin: auto;
+    padding: 0;
+    border: 0;
+  }
+  .tab-track span {
+    height: 4px;
+  }
+  .tabs {
+    max-width: 290px;
+    margin: 2px auto 0;
+  }
+  .tabs a {
+    height: 28px;
+  }
+  .tabs svg {
+    width: 16px;
+  }
+  .header-actions {
+    gap: 7px;
+  }
+  .utility {
+    font-size: 9px;
+    padding: 5px 7px;
+  }
+  .utility svg {
+    width: 12px;
+  }
+  .avatar {
+    width: 24px;
+    height: 24px;
+    margin-left: 3px;
+  }
+  .workspace {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+  .studio-shell > .workspace {
+    grid-template-rows: minmax(0, auto) minmax(0, 1fr);
+    gap: 14px;
+  }
+  .header-shell {
+    padding-bottom: 0;
+  }
+}

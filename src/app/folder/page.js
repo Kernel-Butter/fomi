@@ -1,5 +1,6 @@
-import { notFound } from 'next/navigation';
+import NotFound from "../not-found";
 
+// A known, unavailable destination remains normal client navigation.
 export default function UnavailablePage() {
-  notFound();
+  return <NotFound />;
 }

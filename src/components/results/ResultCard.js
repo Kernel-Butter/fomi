@@ -1,7 +1,116 @@
-'use client';
-import { memo, useRef, useState } from 'react';
-import Image from 'next/image';
-import Icon from '../Icon';
-function ResultCard({ item,index,priority }) { const video = useRef(null); const [started,setStarted] = useState(false), [playing,setPlaying] = useState(false); const [failed,setFailed] = useState(false); function play() { setStarted(true); setPlaying(true); video.current?.play().catch(() => setPlaying(false)); } function pause() { video.current?.pause(); setPlaying(false); } return <div className="result-card" style={{ aspectRatio:`${item.width} / ${item.height}`,animationDelay:`${index * 90}ms` }} onMouseEnter={item.type === 'video' ? play : undefined} onMouseLeave={item.type === 'video' ? pause : undefined}><Image src={item.poster || item.src} fill sizes="(max-width: 639px) 46vw, (max-width: 1023px) 23vw, (max-width: 1536px) 18vw, 260px" alt={item.prompt} priority={priority}/>{item.type === 'video' && <>{started && <video ref={video} src={item.src} poster={item.poster} muted loop playsInline autoPlay preload="none" aria-label={item.prompt} onCanPlay={() => { if (playing) video.current?.play().catch(() => setPlaying(false)); }} onError={() => { setFailed(true); setPlaying(false); }}/>}<button className="video-play" aria-label={playing ? 'Pause video' : 'Play video'} onClick={() => { if (playing) pause(); else { play(); video.current?.play().catch(() => setPlaying(false)); } }}><Icon name={playing ? 'video' : 'play'} size={20}/></button>{failed && <span className="video-error">Video unavailable</span>}</>}</div>; }
-export default memo(ResultCard);
+﻿"use client";
+import { memo, useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import Icon from "../Icon";
 
+function ResultCard({ item, index, priority, active }) {
+  const videoRef = useRef(null);
+  const [started, setStarted] = useState(false);
+  const [requested, setRequested] = useState(false);
+  const [playing, setPlaying] = useState(false);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    let cancelled = false;
+    if (active && requested && !document.hidden) {
+      video.play().catch(() => {
+        if (!cancelled) setRequested(false);
+      });
+    } else {
+      video.pause();
+      setRequested(false);
+    }
+    return () => {
+      cancelled = true;
+      video.pause();
+    };
+  }, [active, requested, started]);
+
+  useEffect(() => {
+    if (item.type !== "video") return;
+    function onVisibilityChange() {
+      if (document.hidden) {
+        videoRef.current?.pause();
+        setRequested(false);
+      }
+    }
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () =>
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+  }, [item.type]);
+
+  function play() {
+    if (active && !failed) {
+      setStarted(true);
+      setRequested(true);
+    }
+  }
+  function pause() {
+    setRequested(false);
+  }
+  return (
+    <div
+      className="result-card"
+      style={{
+        aspectRatio: `${item.width} / ${item.height}`,
+        animationDelay: `${index * 90}ms`,
+      }}
+      onPointerEnter={
+        item.type === "video"
+          ? (event) => {
+              if (event.pointerType === "mouse") play();
+            }
+          : undefined
+      }
+      onPointerLeave={item.type === "video" ? pause : undefined}
+    >
+      <Image
+        src={item.poster || item.src}
+        fill
+        sizes="(max-width: 639px) 46vw, (max-width: 1023px) 23vw, (max-width: 1536px) 18vw, 260px"
+        alt={item.prompt}
+        priority={priority}
+      />
+      {item.type === "video" && (
+        <>
+          {started && (
+            <video
+              ref={videoRef}
+              src={item.src}
+              poster={item.poster}
+              muted
+              loop
+              playsInline
+              preload="none"
+              aria-label={item.prompt}
+              onPlaying={() => setPlaying(true)}
+              onPause={() => setPlaying(false)}
+              onError={() => {
+                setFailed(true);
+                setRequested(false);
+                setPlaying(false);
+              }}
+            />
+          )}
+          <button
+            type="button"
+            className="video-play"
+            aria-label={playing ? "Pause video" : "Play video"}
+            aria-pressed={playing}
+            disabled={failed}
+            onClick={() => {
+              if (requested) pause();
+              else play();
+            }}
+          >
+            <Icon name={playing ? "video" : "play"} size={20} />
+          </button>
+          {failed && <span className="video-error">Video unavailable</span>}
+        </>
+      )}
+    </div>
+  );
+}
+export default memo(ResultCard);

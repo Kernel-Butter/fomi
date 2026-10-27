@@ -1,12 +1,12 @@
-'use client';
-import { useEffect, useRef, useState } from 'react';
-import { generate } from '../lib/api';
+"use client";
+import { useEffect, useRef, useState } from "react";
+import { generate } from "../lib/api";
 
 export default function useGenerations() {
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [announcement, setAnnouncement] = useState('');
-  const [error, setError] = useState('');
+  const [announcement, setAnnouncement] = useState("");
+  const [error, setError] = useState("");
   const [scrollRequest, setScrollRequest] = useState(null);
   const pending = useRef(false);
   const controller = useRef(null);
@@ -16,21 +16,30 @@ export default function useGenerations() {
     if (pending.current || !options.prompt.trim()) return;
     pending.current = true;
     setLoading(true);
-    setError('');
-    setAnnouncement('Generation started.');
+    setError("");
+    setAnnouncement("Generation started.");
     const id = crypto.randomUUID();
     controller.current = new AbortController();
-    setGroups(previous => [...previous, { id, ...options, loading: true, items: [] }]);
-    setScrollRequest({ id, mode: 'bottom' });
+    setGroups((previous) => [
+      ...previous,
+      { id, ...options, loading: true, items: [] },
+    ]);
+    setScrollRequest({ id, mode: "bottom" });
     try {
       const items = await generate(options, controller.current.signal);
-      setGroups(previous => previous.map(group => group.id === id ? { ...group, loading: false, items } : group));
-      setAnnouncement(`${items.length} ${options.type === 'video' ? 'videos' : 'images'} ready.`);
+      setGroups((previous) =>
+        previous.map((group) =>
+          group.id === id ? { ...group, loading: false, items } : group,
+        ),
+      );
+      setAnnouncement(
+        `${items.length} ${options.type === "video" ? "videos" : "images"} ready.`,
+      );
     } catch (err) {
-      if (err.name !== 'AbortError') {
-        setGroups(previous => previous.filter(group => group.id !== id));
+      if (err.name !== "AbortError") {
+        setGroups((previous) => previous.filter((group) => group.id !== id));
         setError(err.message);
-        setAnnouncement('Generation failed. Please try again.');
+        setAnnouncement("Generation failed. Please try again.");
       }
     } finally {
       pending.current = false;
@@ -39,9 +48,17 @@ export default function useGenerations() {
   }
 
   function loadHistory(id) {
-    if (!groups.some(group => group.id === id)) return;
-    setScrollRequest({ id, mode: 'conversation' });
+    if (!groups.some((group) => group.id === id)) return;
+    setScrollRequest({ id, mode: "conversation" });
   }
 
-  return { groups, loading, announcement, error, scrollRequest, create, loadHistory };
+  return {
+    groups,
+    loading,
+    announcement,
+    error,
+    scrollRequest,
+    create,
+    loadHistory,
+  };
 }

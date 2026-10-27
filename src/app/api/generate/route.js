@@ -1,2 +1,21 @@
-import { makeItems } from '../../../lib/mockData';
-export async function POST(request) { let data; try { data = await request.json(); } catch { return Response.json({ error: 'Invalid request.' }, { status: 400 }); } const { prompt, count, ratio, model, type } = data; if (typeof prompt !== 'string' || !prompt.trim() || prompt.length > 5000 || ![1,2,3,4].includes(count) || !['1:1','3:4','16:9'].includes(ratio) || !['Frame 1.0','Flux','Studio'].includes(model) || !['image','video'].includes(type)) return Response.json({ error: 'Please check your generation options.' }, { status: 400 }); await new Promise(resolve => setTimeout(resolve, 1200 + Math.random() * 700)); return Response.json({ items: makeItems(data) }); }
+﻿import { makeItems } from "../../../lib/mockData";
+import { isValidGenerationRequest } from "../../../lib/generationValidation";
+
+export async function POST(request) {
+  let data;
+  try {
+    data = await request.json();
+  } catch {
+    return Response.json({ error: "Invalid request." }, { status: 400 });
+  }
+  if (!isValidGenerationRequest(data)) {
+    return Response.json(
+      { error: "Please check your generation options." },
+      { status: 400 },
+    );
+  }
+  await new Promise((resolve) =>
+    setTimeout(resolve, 1200 + Math.random() * 700),
+  );
+  return Response.json({ items: makeItems(data) });
+}

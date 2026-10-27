@@ -25,7 +25,7 @@ Deploy to Vercel with default Next.js settings. No environment variables are req
 - `/` redirects to `/imagestudio`.
 - `/imagestudio` generates images; `/videostudio` generates videos.
 - The second and third header icons and the panel toggle switch studios. The indicator slides between active tabs.
-- Home, wand, and folder open the not-found page with a link back to Image Studio.
+- Home, wand, and folder are known unavailable routes: they show the fallback screen through normal client navigation, preserving studio state. These routes return HTTP 200; genuinely unknown URLs return HTTP 404.
 - Enter a prompt or choose an example, select count, ratio, and model, then click Generate or press Ctrl/Cmd + Enter.
 - History thumbnails load saved samples into the feed. Gallery focuses history; View All scrolls to the remaining thumbnails.
 - Videos load on hover or playback activation. Their button pauses playback.
@@ -74,3 +74,21 @@ Returns `{ "items": [...] }` after 1.2-1.9 seconds. Each item contains `id`, `ty
 ```
 
 Use `feat`, `fix`, `docs`, `style`, `refactor`, or `chore` as appropriate. Keep commits focused and record only checks actually performed.
+
+## Architecture and checks
+
+- `StudioWorkspace` retains separate image and video sessions in the shared layout until refresh. Inactive videos pause; returning to a studio restores its feed position.
+- `AppShell` composes controls, results, and `HistoryTray`. Gallery uses React context callbacks; result and prompt navigation use refs rather than global events or DOM IDs.
+- `src/lib/generationConfig.js` is the shared source for model options, style references, and advanced defaults. The API validates request shape and optional advanced values before generating mock items.
+- `src/styles` contains feature-specific stylesheets with consolidated rules and breakpoints. `globals.css` contains the Tailwind directives.
+- Runtime dependencies remain Next.js and React. ESLint, Prettier, and Playwright are development tools.
+
+```sh
+npm run lint
+npm run format:check
+npm run build
+npx playwright install chromium
+npm test
+```
+
+Browser regression checks cover malformed API bodies, advanced validation, retained studio state and refresh reset, modal Apply/Cancel, grouped history navigation, video pause on route changes, and viewport bounds at desktop, tablet, and mobile widths. The test runner starts its own production server on port 3102; build first.

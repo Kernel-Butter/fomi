@@ -1,0 +1,185 @@
+.results-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+.generation-group {
+  display: grid;
+  grid-template-columns: 190px minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+.prompt-bubble {
+  background: #f8ede8;
+  border-radius: 18px;
+  padding: 14px 12px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.prompt-bubble p {
+  font-size: 10px;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+.model-chip {
+  align-self: flex-end;
+  display: flex;
+  gap: 4px;
+  border-radius: 6px;
+  background: #fffdfa;
+  padding: 5px 7px;
+  font-size: 9px;
+}
+.model-chip > span {
+  color: #9b8b80;
+}
+.result-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+.result-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #e8e0d8;
+  animation: reveal 0.45s both;
+  min-width: 0;
+}
+.result-card img {
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+.result-card:hover img {
+  transform: scale(1.025);
+}
+.result-card video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.video-play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #ffffffcf;
+  backdrop-filter: blur(8px);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+}
+.video-error {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  font-size: 10px;
+  background: white;
+  padding: 4px;
+  border-radius: 4px;
+}
+.result-skeleton {
+  background: #eee3dc;
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+}
+.result-skeleton > div {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 15%,
+    #fff8 50%,
+    transparent 85%
+  );
+  animation: shimmer 1.4s infinite;
+}
+.error-message {
+  padding: 12px;
+  background: #fae4dd;
+  color: #8c3428;
+  border-radius: 12px;
+  margin-bottom: 15px;
+}
+.spinner {
+  height: 15px;
+  width: 15px;
+  border: 2px solid #42251d40;
+  border-top-color: #42251d;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes shimmer {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@media (min-width: 1024px) and (max-width: 1250px) {
+  .generation-group {
+    grid-template-columns: 155px minmax(0, 1fr);
+    gap: 14px;
+  }
+  .result-grid {
+    gap: 10px;
+  }
+}
+@media (min-width: 640px) and (max-width: 1023px) {
+  .generation-group {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .prompt-bubble {
+    max-width: none;
+  }
+  .prompt-bubble p {
+    max-height: 80px;
+    overflow: auto;
+  }
+  .result-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+  }
+}
+@media (max-width: 639px) {
+  .generation-group {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .prompt-bubble {
+    padding: 13px;
+  }
+  .prompt-bubble p {
+    font-size: 11px;
+  }
+  .result-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .result-card {
+    border-radius: 12px;
+  }
+}
