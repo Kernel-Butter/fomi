@@ -1,7 +1,7 @@
 ﻿"use client";
 import { memo, useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
+import Link from "../navigation/AppLink";
 import Icon from "../Icon";
 
 function ResultCard({ item, index, priority, active }) {
@@ -77,6 +77,7 @@ function ResultCard({ item, index, priority, active }) {
       />
       <Link
         className="result-preview-link"
+        prefetch={false}
         href={`/media/${encodeURIComponent(item.id)}`}
         scroll={false}
         onClick={pause}

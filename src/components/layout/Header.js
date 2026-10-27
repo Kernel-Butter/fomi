@@ -1,5 +1,5 @@
 "use client";
-import Link from "next/link";
+import Link from "../navigation/AppLink";
 import { useSelectedLayoutSegment } from "next/navigation";
 import Image from "next/image";
 import Icon from "../Icon";

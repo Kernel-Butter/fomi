@@ -1,10 +1,13 @@
 ﻿"use client";
-import { useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useContext, useEffect, useRef } from "react";
+import {
+  RouteNavigationContext,
+  RouteProgress,
+} from "../navigation/RouteProgressProvider";
 
 // This layout-level dialog stays mounted while the selected media route changes.
 export default function MediaDialog({ children }) {
-  const router = useRouter();
+  const router = useContext(RouteNavigationContext);
   const dialogRef = useRef(null);
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -61,6 +64,7 @@ export default function MediaDialog({ children }) {
           router.back();
       }}
     >
+      <RouteProgress />
       {children}
     </dialog>
   );

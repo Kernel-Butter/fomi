@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "../navigation/AppLink";
 
 export default function ModeToggle({ type, features }) {
   return (

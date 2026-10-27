@@ -1,13 +1,14 @@
 "use client";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Icon from "../Icon";
-import Link from "next/link";
-import { useRouter, usePathname } from "next/navigation";
+import Link from "../navigation/AppLink";
+import { RouteNavigationContext } from "../navigation/RouteProgressProvider";
+import { usePathname } from "next/navigation";
 import { getMedia } from "../../lib/api";
 
 export default function MediaPreview({ id, modal = false }) {
-  const router = useRouter();
+  const router = useContext(RouteNavigationContext);
   const pathname = usePathname();
   const selectedId = pathname.startsWith("/media/")
     ? decodeURIComponent(pathname.slice(7))

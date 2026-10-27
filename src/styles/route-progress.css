@@ -1,0 +1,48 @@
+﻿/* Decorative route activity: fixed positioning never shifts the studio frame. */
+.route-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 2147483647;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 180ms ease 100ms;
+}
+.route-progress > span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: #d68c76;
+  box-shadow: 0 0 8px #e59d8870;
+  transform-origin: left;
+  transform: scaleX(1);
+}
+.route-progress.is-loading {
+  opacity: 1;
+  transition: opacity 100ms ease;
+}
+.route-progress.is-loading > span {
+  animation: route-progress-trickle 8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes route-progress-trickle {
+  0% {
+    transform: scaleX(0.04);
+  }
+  15% {
+    transform: scaleX(0.38);
+  }
+  50% {
+    transform: scaleX(0.72);
+  }
+  100% {
+    transform: scaleX(0.92);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .route-progress.is-loading > span {
+    animation: none;
+    transform: scaleX(1);
+  }
+}

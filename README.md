@@ -142,3 +142,7 @@ Preview arrows move within the selected generation; first/last boundaries are di
 The Frame model supports both studios. Flux is image-only and does not offer camera references. Studio supports one or two outputs with landscape or square ratios. These are demo capabilities; change the backend fixtures to simulate another catalog.
 
 Reference artwork uses complete `imageUrl` values returned by the API. `application.support` supplies the support destination and accessible label. `/api/profile` supplies the demo identity; a neutral profile icon remains if that optional request fails. Feature flags control studio availability and header actions while route paths remain frontend-owned. Profile and configuration fixtures are defined in the backend, not in UI components.
+
+## Route loading indicator
+
+A thin, fixed coral line uses React transition state to indicate client-side route loading. Internal links and programmatic preview navigation share `RouteProgressProvider`; modifier-clicks, external links, and downloads retain their normal behavior. The line does not occupy layout space, and reduced-motion users see a static loading line. Generation/API progress remains in the studio UI rather than triggering the route indicator.

@@ -8,6 +8,8 @@ import "../styles/results.css";
 import "../styles/prompt-cards.css";
 import "../styles/advanced.css";
 import "../styles/media-preview.css";
+import RouteProgressProvider from "../components/navigation/RouteProgressProvider";
+import "../styles/route-progress.css";
 import StudioWorkspace from "../components/layout/StudioWorkspace";
 const inter = Inter({ subsets: ["latin"], display: "swap" });
 export const metadata = {
@@ -18,10 +20,12 @@ export default function RootLayout({ children, modal }) {
   return (
     <html lang="en">
       <body className={inter.className}>
-        <StudioWorkspace>
-          {children}
-          {modal}
-        </StudioWorkspace>
+        <RouteProgressProvider>
+          <StudioWorkspace>
+            {children}
+            {modal}
+          </StudioWorkspace>
+        </RouteProgressProvider>
       </body>
     </html>
   );
