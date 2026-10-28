@@ -1,7 +1,7 @@
 ﻿"use client";
 import { useContext, useEffect, useRef } from "react";
 import StudioDrawer from "../ui/StudioDrawer";
-import useBelow992 from "../../hooks/useBelow992";
+import useCompactLayout from "../../hooks/useCompactLayout";
 import {
   RouteNavigationContext,
   RouteProgress,
@@ -11,7 +11,7 @@ import {
 export default function MediaDialog({ children }) {
   const router = useContext(RouteNavigationContext);
   const dialogRef = useRef(null);
-  const below992 = useBelow992();
+  const compactLayout = useCompactLayout();
   useEffect(() => {
     const previousFocus = document.activeElement;
     return () => {
@@ -23,14 +23,14 @@ export default function MediaDialog({ children }) {
     };
   }, []);
   useEffect(() => {
-    if (below992) return;
+    if (compactLayout) return;
     const dialog = dialogRef.current;
     if (!dialog.open) dialog.showModal();
     return () => {
       if (dialog.open) dialog.close();
     };
-  }, [below992]);
-  if (below992)
+  }, [compactLayout]);
+  if (compactLayout)
     return (
       <StudioDrawer
         title="Media preview"

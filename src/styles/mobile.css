@@ -98,7 +98,7 @@
   .controls-container .option-selects select {
     font-size: 16px;
     min-height: 44px;
-    padding: 8px 3px;
+    padding: 8px 30px 8px 8px;
   }
   .controls-container .option-selects {
     grid-template-columns: 1.1fr 0.8fr 1.3fr;
@@ -265,5 +265,14 @@
     opacity: 1;
     translate: 0 0;
     scale: 1;
+  }
+}
+
+@media (max-width: 479px) {
+  .controls-container .option-selects {
+    grid-template-columns: 1.4fr 1fr;
+  }
+  .controls-container .option-selects label:last-child {
+    grid-column: 1 / -1;
   }
 }

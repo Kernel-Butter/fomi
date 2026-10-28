@@ -1,18 +1,22 @@
 "use client";
 import { ConfigProvider, Drawer } from "antd";
 import CloseButton from "./CloseButton";
-import useBelow992 from "../../hooks/useBelow992";
+import useCompactLayout from "../../hooks/useCompactLayout";
 
 export default function StudioDrawer({
   title,
   closeLabel = "Close drawer",
   inline = false,
   hideHeader = false,
+  square = false,
+  compactPlacement = "bottom",
   children,
   ...props
 }) {
-  const below992 = useBelow992();
-  const placement = below992 ? "bottom" : props.placement || "bottom";
+  const compactLayout = useCompactLayout();
+  const placement = compactLayout
+    ? compactPlacement
+    : props.placement || "bottom";
   return (
     <ConfigProvider
       theme={{
@@ -27,7 +31,6 @@ export default function StudioDrawer({
       }}
     >
       <Drawer
-        size="min(88dvh, 860px)"
         destroyOnHidden={false}
         push={false}
         mask={!inline}
@@ -41,7 +44,7 @@ export default function StudioDrawer({
         {...props}
         placement={placement}
         size={
-          below992 && props.placement
+          compactLayout && placement === "bottom" && props.placement
             ? "min(88dvh, 860px)"
             : props.size || "min(88dvh, 860px)"
         }
@@ -66,11 +69,14 @@ export default function StudioDrawer({
             flexDirection: "column",
           },
           section: {
-            borderRadius: inline
-              ? 0
-              : placement === "left"
-                ? "0 24px 24px 0"
-                : "24px 24px 0 0",
+            borderRadius:
+              inline || square
+                ? 0
+                : placement === "left"
+                  ? "0 24px 24px 0"
+                  : placement === "right"
+                    ? "24px 0 0 24px"
+                    : "24px 24px 0 0",
             overflow: "hidden",
           },
           ...(inline

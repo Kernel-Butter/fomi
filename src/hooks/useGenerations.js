@@ -21,9 +21,12 @@ export default function useGenerations(type) {
   const pending = useRef(false);
   const controller = useRef(null);
   const historyController = useRef(null);
+  const failedConversation = useRef(null);
+  const historyListController = useRef(null);
 
   useEffect(() => {
     const initial = new AbortController();
+    historyListController.current = initial;
     getHistory(sessionId, type, initial.signal)
       .then((data) => setHistory(data.history))
       .catch((error) => {
@@ -33,6 +36,7 @@ export default function useGenerations(type) {
       initial.abort();
       controller.current?.abort();
       historyController.current?.abort();
+      historyListController.current?.abort();
     };
   }, [sessionId, type]);
 
@@ -44,7 +48,14 @@ export default function useGenerations(type) {
     );
   }
   async function refreshHistory(signal) {
-    const data = await getHistory(sessionId, type, signal);
+    historyListController.current?.abort();
+    const abort = new AbortController();
+    historyListController.current = abort;
+    const data = await getHistory(
+      sessionId,
+      type,
+      signal ? AbortSignal.any([signal, abort.signal]) : abort.signal,
+    );
     setHistory(data.history);
   }
   async function run(group, retry = false) {
@@ -52,9 +63,14 @@ export default function useGenerations(type) {
     pending.current = true;
     setLoading(true);
     setError("");
+    failedConversation.current = null;
     setAnnouncement(retry ? "Retry started." : "Generation started.");
     const abort = new AbortController();
     controller.current = abort;
+    const operationSignal = AbortSignal.any([
+      abort.signal,
+      AbortSignal.timeout(120000),
+    ]);
     update({
       id: group.id,
       loading: true,
@@ -66,9 +82,9 @@ export default function useGenerations(type) {
     try {
       let job;
       if (retry && group.remote) {
-        ({ job } = await getJob(sessionId, group.id, abort.signal));
+        ({ job } = await getJob(sessionId, group.id, operationSignal));
         if (job.status === "failed")
-          ({ job } = await retryJob(sessionId, group.id, abort.signal));
+          ({ job } = await retryJob(sessionId, group.id, operationSignal));
       } else {
         ({ job } = await submitGeneration(
           sessionId,
@@ -81,13 +97,15 @@ export default function useGenerations(type) {
             advanced: group.advanced,
             requestId: group.id,
           },
-          abort.signal,
+          operationSignal,
         ));
       }
+      if (retry && job.status === "failed" && !group.remote)
+        ({ job } = await retryJob(sessionId, job.id, operationSignal));
       update({ ...job, remote: true });
       while (job.loading) {
-        await pollDelay(config.pollingInterval, abort.signal);
-        ({ job } = await getJob(sessionId, job.id, abort.signal));
+        await pollDelay(config.pollingInterval, operationSignal);
+        ({ job } = await getJob(sessionId, job.id, operationSignal));
         update({ ...job, remote: true });
       }
       if (job.status === "failed") {
@@ -111,7 +129,10 @@ export default function useGenerations(type) {
           id: group.id,
           loading: false,
           status: "failed",
-          error: requestError.message,
+          error:
+            requestError.name === "TimeoutError"
+              ? "This generation is taking longer than expected. Retry to check its progress; your prompt is saved."
+              : requestError.message,
         });
         setAnnouncement(
           "Generation interrupted. Your prompt is saved; please retry.",
@@ -147,6 +168,7 @@ export default function useGenerations(type) {
     const abort = new AbortController();
     historyController.current = abort;
     setError("");
+    failedConversation.current = null;
     try {
       const { group } = await getConversation(sessionId, id, abort.signal);
       setGroups((previous) =>
@@ -160,15 +182,20 @@ export default function useGenerations(type) {
       );
       setScrollRequest({ id, mode: "conversation" });
     } catch (requestError) {
-      if (requestError.name !== "AbortError") setError(requestError.message);
+      if (requestError.name !== "AbortError") {
+        failedConversation.current = id;
+        setError(requestError.message);
+      }
     }
   }
   async function retryHistory() {
+    if (failedConversation.current)
+      return loadHistory(failedConversation.current);
     setError("");
     try {
       await refreshHistory();
     } catch (requestError) {
-      setError(requestError.message);
+      if (requestError.name !== "AbortError") setError(requestError.message);
     }
   }
   return {
@@ -177,6 +204,9 @@ export default function useGenerations(type) {
     loading,
     announcement,
     error,
+    historyRetryLabel: failedConversation.current
+      ? "Retry opening conversation"
+      : "Refresh history",
     scrollRequest,
     create,
     retry,

@@ -9,6 +9,7 @@ export default function ResultsFeed({
   groups,
   onSample,
   error,
+  historyRetryLabel,
   type,
   active,
   registerGroup,
@@ -20,7 +21,7 @@ export default function ResultsFeed({
         <div className="error-message" role="alert">
           <p>{error}</p>
           <button type="button" onClick={onRetryHistory}>
-            Refresh history
+            {historyRetryLabel}
           </button>
         </div>
       )}

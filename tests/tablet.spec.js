@@ -2,7 +2,7 @@
 
 for (const viewport of [
   { width: 820, height: 1180, columns: 2 },
-  { width: 1180, height: 820, columns: 3 },
+  { width: 1000, height: 820, columns: 3 },
 ]) {
   test(`tablet ${viewport.width}px uses a Create drawer and ${viewport.columns} result columns`, async ({
     page,
@@ -60,6 +60,16 @@ for (const viewport of [
     expect(columns).toBe(viewport.columns);
     const results = await studio.locator(".results-scroll").boundingBox();
     expect(results.width).toBeGreaterThan(viewport.width - 100);
+    await studio
+      .getByRole("button", { name: "Show history", exact: true })
+      .click();
+    await expect(studio.locator(".history-tray.is-open")).toBeVisible();
+    await expect(studio.locator(".history-strip")).toBeVisible();
+    await expect(studio.locator(".compact-history-handle")).not.toBeVisible();
+    await expect(
+      page.getByRole("dialog", { name: "Image history", exact: true }),
+    ).not.toBeVisible();
+    await page.setViewportSize({ width: 800, height: viewport.height });
     await studio
       .getByRole("button", { name: "Show history", exact: true })
       .click();

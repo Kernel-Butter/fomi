@@ -1,3 +1,4 @@
+import { chooseOption, selectedControl } from "./helpers/select";
 import { test, expect } from "@playwright/test";
 
 function studio(page, type = "image") {
@@ -51,9 +52,10 @@ test("drafts, settings and completed chats survive navigation but reset on refre
   await expect(image.getByRole("button", { name: "Show history" })).toHaveCount(
     0,
   );
-  await image
-    .getByRole("combobox", { name: "Aspect ratio", exact: true })
-    .selectOption("16:9");
+  await chooseOption(
+    image.getByRole("combobox", { name: "Aspect ratio" }),
+    "16:9",
+  );
   await generate(page, "A lasting image conversation");
   await image
     .getByLabel("Your prompt", { exact: true })
@@ -66,9 +68,7 @@ test("drafts, settings and completed chats survive navigation but reset on refre
   await expect(image.getByLabel("Your prompt", { exact: true })).toHaveValue(
     "Unsent image draft",
   );
-  await expect(
-    image.getByRole("combobox", { name: "Aspect ratio", exact: true }),
-  ).toHaveValue("16:9");
+  await expect(selectedControl(image, "Aspect ratio")).toContainText("16:9");
   await expect(image.locator(".generation-group")).toHaveCount(1);
   await page
     .getByRole("navigation", { name: "Workspace", exact: true })
@@ -143,6 +143,83 @@ test("history is one entry per conversation and clicking it does not duplicate c
     .click();
   await expect(image.locator(".generation-group")).toHaveCount(5);
   await expect(image.locator(".generation-group").first()).toBeInViewport();
+  await expect(image.locator(".history-deck.is-current")).toHaveAttribute(
+    "aria-label",
+    "Generation: First conversation",
+  );
+  const historyList = image.locator(".history-scroll");
+  await historyList.evaluate((element) => {
+    element.style.maxWidth = "180px";
+    element.scrollLeft = element.scrollWidth;
+  });
+  const next = image.getByRole("button", {
+    name: "Previous history",
+    exact: true,
+  });
+  await expect(next).toBeVisible();
+  const initialLeft = await historyList.evaluate(
+    (element) => element.scrollLeft,
+  );
+  await next.click();
+  await expect
+    .poll(() => historyList.evaluate((element) => element.scrollLeft))
+    .toBeLessThan(initialLeft);
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  for (const direction of [-1, 1]) {
+    const arrow = image.getByRole("button", {
+      name: direction < 0 ? "Previous history" : "Next history",
+      exact: true,
+      includeHidden: true,
+    });
+    for (let step = 0; step < 10 && (await arrow.isEnabled()); step++) {
+      const target = await historyList.evaluate(
+        (element, direction) =>
+          Math.max(
+            0,
+            Math.min(
+              element.scrollWidth - element.clientWidth,
+              element.scrollLeft + direction * element.clientWidth * 0.8,
+            ),
+          ),
+        direction,
+      );
+      await arrow.click();
+      await expect
+        .poll(() => historyList.evaluate((element) => element.scrollLeft))
+        .toBeCloseTo(target, 0);
+    }
+    await expect(arrow).toBeDisabled();
+  }
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await historyList.focus();
+  await image.locator(".results-scroll").evaluate((element) => {
+    element.scrollTop = element.scrollHeight;
+  });
+  await expect(image.locator(".history-deck.is-current")).toHaveAttribute(
+    "aria-label",
+    "Generation: Conversation 5",
+  );
+  await expect(image.locator(".history-deck.is-current")).toBeInViewport();
+  await image.locator(".results-scroll").evaluate((element) => {
+    element.scrollTop = 0;
+  });
+  await expect(image.locator(".history-deck.is-current")).toHaveAttribute(
+    "aria-label",
+    "Generation: First conversation",
+  );
+  await expect
+    .poll(() =>
+      historyList.evaluate((element) => {
+        const item = element.querySelector(".is-current");
+        return (
+          item.getBoundingClientRect().left >=
+            element.getBoundingClientRect().left - 1 &&
+          item.getBoundingClientRect().right <=
+            element.getBoundingClientRect().right + 1
+        );
+      }),
+    )
+    .toBe(true);
   await expect
     .poll(() =>
       image.locator(".results-scroll").evaluate((element) => element.scrollTop),
@@ -190,7 +267,7 @@ for (const viewport of [
           document.documentElement.scrollHeight <= window.innerHeight,
       ),
     ).toBe(true);
-    if (viewport.width <= 1199)
+    if (viewport.width <= 1023)
       await studio(page)
         .getByRole("button", { name: "Create image", exact: true })
         .click();

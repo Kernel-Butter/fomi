@@ -9,7 +9,7 @@ import { StudioNavigationContext } from "./StudioNavigation";
 export default function Header({ profile, application, features }) {
   const [menuOpen, setMenuOpen] = useState(false);
   useEffect(() => {
-    const query = window.matchMedia("(max-width: 1199px)");
+    const query = window.matchMedia("(max-width: 1023px)");
     const sync = () => {
       if (!query.matches) setMenuOpen(false);
     };
@@ -149,8 +149,10 @@ export default function Header({ profile, application, features }) {
       </div>
       <StudioDrawer
         title="Navigation"
+        square
         closeLabel="Close navigation"
         placement="left"
+        compactPlacement="left"
         size="min(340px, calc(100vw - 28px))"
         rootClassName="navigation-drawer"
         open={menuOpen}

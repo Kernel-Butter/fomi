@@ -1,4 +1,5 @@
-﻿export default function OptionSelects({
+import StudioSelect from "../ui/StudioSelect";
+export default function OptionSelects({
   type,
   config,
   options,
@@ -30,26 +31,21 @@
       ].map(({ key, label, values }) => (
         <label key={key}>
           <span className="sr-only">{label}</span>
-          <select
+          <StudioSelect
             disabled={disabled}
             aria-label={label}
             value={options[key]}
-            onChange={(event) =>
+            options={values.map((value) => ({
+              value: value.id,
+              label: value.name,
+            }))}
+            onChange={(value) =>
               onChange({
                 ...options,
-                [key]:
-                  key === "count"
-                    ? Number(event.target.value)
-                    : event.target.value,
+                [key]: key === "count" ? Number(value) : value,
               })
             }
-          >
-            {values.map((value) => (
-              <option key={value.id} value={value.id}>
-                {value.name}
-              </option>
-            ))}
-          </select>
+          />
         </label>
       ))}
     </div>

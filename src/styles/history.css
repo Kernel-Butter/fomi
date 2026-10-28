@@ -31,6 +31,8 @@
   display: flex;
   gap: 12px;
   overflow-x: auto;
+  overflow-anchor: none;
+  overscroll-behavior-x: contain;
   scrollbar-width: none;
   width: 100%;
   border-radius: 7px;
@@ -136,6 +138,41 @@
     width 250ms ease-out,
     height 250ms ease-out;
 }
+.history-deck.is-current::after,
+.compact-history-entry.is-current::after {
+  content: "";
+  position: absolute;
+  bottom: -10px;
+  left: calc(50% - 5px);
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 6px solid #a85d49;
+  pointer-events: none;
+}
+.history-deck.is-current .history-preview:first-child {
+  outline: 2px solid #a85d49;
+  outline-offset: 2px;
+}
+.history-slide {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border: 1px solid #e6d7cd;
+  border-radius: 50%;
+  background: #fff9f4;
+  color: #80533e;
+  position: relative;
+  z-index: 3;
+}
+.history-slide:hover {
+  background: #f4e6e1;
+}
+.history-strip > .history-slide:disabled {
+  visibility: hidden;
+  pointer-events: none;
+}
 .history-deck.is-stacked {
   width: calc(var(--preview-size) + (var(--image-count) - 1) * 3px);
   height: calc(var(--preview-size) + (var(--image-count) - 1) * 3px);
@@ -224,7 +261,7 @@
 .history-tray-content .history-fade {
   z-index: 1;
 }
-@media (min-width: 640px) and (max-width: 1199px) {
+@media (min-width: 640px) and (max-width: 1023px) {
   .history-scroll {
     --preview-size: 60px;
   }

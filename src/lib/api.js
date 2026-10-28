@@ -1,35 +1,64 @@
 ﻿export class ApiError extends Error {
   constructor(message, status) {
     super(message);
+    this.name = "ApiError";
     this.status = status;
   }
 }
+import { validResponse } from "./responseValidation";
 async function request(path, { sessionId, signal, method = "GET", body } = {}) {
-  const response = await fetch(path, {
-    method,
-    signal,
-    cache: "no-store",
-    headers: {
-      ...(sessionId ? { "X-Session-ID": sessionId } : {}),
-      ...(body !== undefined ? { "Content-Type": "application/json" } : {}),
-    },
-    ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
-  });
-  let data;
+  const timeout = AbortSignal.timeout(30000);
   try {
-    data = await response.json();
-  } catch {
+    const response = await fetch(path, {
+      method,
+      signal: signal ? AbortSignal.any([signal, timeout]) : timeout,
+      cache: "no-store",
+      headers: {
+        ...(sessionId ? { "X-Session-ID": sessionId } : {}),
+        ...(body !== undefined ? { "Content-Type": "application/json" } : {}),
+      },
+      ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
+    });
+    let data;
+    try {
+      data = await response.json();
+    } catch {
+      throw new ApiError(
+        "The server returned an unexpected response. Please try again.",
+        response.status,
+      );
+    }
+    if (!data || typeof data !== "object" || Array.isArray(data))
+      throw new ApiError(
+        "The server returned an unexpected response. Please try again.",
+        response.status,
+      );
+    if (!response.ok) {
+      if ([401, 410].includes(response.status) && typeof window !== "undefined")
+        window.dispatchEvent(new Event("studio-session-expired"));
+      throw new ApiError(
+        typeof data.error === "string"
+          ? data.error
+          : "The request failed. Please try again.",
+        response.status,
+      );
+    }
+    if (!validResponse(path, data))
+      throw new ApiError(
+        "The server returned incomplete or invalid data. Please try again.",
+        response.status,
+      );
+    return data;
+  } catch (error) {
+    if (signal?.aborted) throw signal.reason;
+    if (timeout.aborted)
+      throw new ApiError("The request took too long. Please try again.", 408);
+    if (error instanceof ApiError) throw error;
     throw new ApiError(
-      "The server returned an unexpected response. Please try again.",
-      response.status,
+      "Could not connect to the server. Check your connection and try again.",
+      0,
     );
   }
-  if (!response.ok)
-    throw new ApiError(
-      data.error || "The request failed. Please try again.",
-      response.status,
-    );
-  return data;
 }
 export const getConfig = (signal) => request("/api/config", { signal });
 export const startSession = (signal) =>
@@ -67,12 +96,16 @@ export const getConversation = (sessionId, id, signal) =>
 export function pollDelay(duration, signal) {
   return new Promise((resolve, reject) => {
     if (signal.aborted) {
-      reject(new DOMException("Request cancelled", "AbortError"));
+      reject(
+        signal.reason ?? new DOMException("Request cancelled", "AbortError"),
+      );
       return;
     }
     const onAbort = () => {
       clearTimeout(timer);
-      reject(new DOMException("Request cancelled", "AbortError"));
+      reject(
+        signal.reason ?? new DOMException("Request cancelled", "AbortError"),
+      );
     };
     const timer = setTimeout(() => {
       signal.removeEventListener("abort", onAbort);

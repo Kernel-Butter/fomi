@@ -8,6 +8,7 @@ import useGenerations from "../../hooks/useGenerations";
 
 export default function AppShell({ type, active }) {
   const [prompt, setPrompt] = useState("");
+  const [currentId, setCurrentId] = useState(null);
   const resultsRef = useRef(null);
   const promptRef = useRef(null);
   const controlsRef = useRef(null);
@@ -22,6 +23,7 @@ export default function AppShell({ type, active }) {
     retryHistory,
     announcement,
     error,
+    historyRetryLabel,
     loading,
     scrollRequest,
     create,
@@ -37,6 +39,43 @@ export default function AppShell({ type, active }) {
     controlsRef.current?.open();
     requestAnimationFrame(() => promptRef.current?.focus());
   }, []);
+
+  useEffect(() => {
+    const feed = resultsRef.current;
+    if (!active || !feed) return;
+    function updateCurrent() {
+      const bounds = feed.getBoundingClientRect();
+      let best = null;
+      let largest = 0;
+      for (const [id, element] of groupElements.current) {
+        const rect = element.getBoundingClientRect();
+        const visible = Math.max(
+          0,
+          Math.min(rect.bottom, bounds.bottom) - Math.max(rect.top, bounds.top),
+        );
+        if (visible > largest) {
+          best = id;
+          largest = visible;
+        }
+      }
+      if (
+        feed.scrollTop > 0 &&
+        feed.scrollTop + feed.clientHeight >= feed.scrollHeight - 2
+      )
+        best = groups.at(-1)?.id ?? best;
+      setCurrentId(best);
+    }
+    const observer = new ResizeObserver(updateCurrent);
+    observer.observe(feed);
+    for (const element of groupElements.current.values())
+      observer.observe(element);
+    feed.addEventListener("scroll", updateCurrent, { passive: true });
+    updateCurrent();
+    return () => {
+      observer.disconnect();
+      feed.removeEventListener("scroll", updateCurrent);
+    };
+  }, [active, groups]);
 
   useEffect(() => {
     if (!active || !resultsRef.current) return;
@@ -71,6 +110,7 @@ export default function AppShell({ type, active }) {
         ref={historyRef}
         type={type}
         groups={historyGroups}
+        currentId={currentId}
         onSelect={loadHistory}
       />
       <div className="workspace">
@@ -110,6 +150,7 @@ export default function AppShell({ type, active }) {
             groups={groups}
             onSample={chooseSample}
             error={error}
+            historyRetryLabel={historyRetryLabel}
           />
         </main>
       </div>

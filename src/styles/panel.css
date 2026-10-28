@@ -43,7 +43,9 @@
   height: 122px;
   font-size: 11px;
   line-height: 1.6;
-  outline-offset: 2px;
+}
+.prompt-box:has(textarea:focus) {
+  border-color: #a85d49;
 }
 .prompt-box textarea::placeholder {
   color: #7b746e;
@@ -72,21 +74,27 @@
 }
 .option-selects {
   display: grid;
-  grid-template-columns: 1.2fr 0.8fr 1.4fr;
+  grid-template-columns: 1.4fr 1fr;
   gap: 5px;
   margin: 17px 0 22px;
 }
 .option-selects label {
   min-width: 0;
 }
+.option-selects label:last-child {
+  grid-column: 1 / -1;
+}
 .option-selects select {
   width: 100%;
-  background: #fff;
+  background-color: #fff;
   border-radius: 6px;
-  font-size: 9px;
-  padding: 5px 2px;
+  font-size: 12px;
+  padding: 5px 30px 5px 8px;
   cursor: pointer;
-  border: none;
+  border: 1px solid transparent;
+}
+.option-selects select:focus {
+  border-color: #a85d49;
 }
 .accordion {
   margin-bottom: 16px;
@@ -174,8 +182,8 @@
     gap: 8px;
   }
   .option-selects select {
-    font-size: 11px;
-    padding: 7px 8px;
+    font-size: 16px;
+    padding: 7px 30px 7px 8px;
   }
   .accordion {
     margin-bottom: 10px;

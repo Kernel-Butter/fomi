@@ -149,18 +149,24 @@ A thin, fixed coral line uses React transition state to indicate client-side rou
 
 ## Tablet layout
 
-At 768-1199px, a Create button opens generation controls in an Ant Design bottom drawer, leaving the results feed full-width. Selecting a prompt card opens and focuses the drawer; generating closes it. Escape, the close button, or the backdrop dismiss it. Advanced settings uses a separate bottom drawer above the controls, and Escape closes only that top drawer. Controls remain mounted so drafts and saved preferences survive resizing and route changes.
+At 768-1023px, a Create button opens generation controls in an Ant Design bottom drawer, leaving the results feed full-width. Selecting a prompt card opens and focuses the drawer; generating closes it. Escape, the close button, or the backdrop dismiss it. Advanced settings uses a separate bottom drawer above the controls, and Escape closes only that top drawer. Controls remain mounted so drafts and saved preferences survive resizing and route changes.
 
-Portrait tablets use two result columns; landscape tablets at 900px or wider use three. Prompts sit above each generation's images. Header utility labels collapse to accessible icons, common touch controls are at least 44px tall, and advanced references use a two-column grid. Desktop sidebars remain available at 1200px and wider.
+Portrait tablets use two result columns; landscape tablets at 900px or wider use three. Prompts sit above each generation's images. Header utility labels collapse to accessible icons, common touch controls are at least 44px tall, and advanced references use a two-column grid. Desktop sidebars remain available at 1024px and wider.
 
-Tablet history uses a right-edge handle and a vertical conversation list. Each conversation is a separate row with a static thumbnail stack, prompt, and media count. Stacks do not fan out on hover; selecting a row returns to its conversation.
+Above 800px, history uses the desktop strip with the current conversation marked and circular overflow arrows. At 800px and below, the history handle opens a conversation list with static thumbnail stacks. Selecting an entry returns to its conversation.
 
-Below 992px, Create is a full-width button below the scrolling conversation feed, matching mobile. At 992-1199px it stays above the feed.
+Below 1024px, Create is a full-width button below the scrolling conversation feed, matching mobile.
 
 ## Mobile layout
 
 At 320-767px, the studio stays in one viewport and only the conversation feed scrolls. Create opens a bottom drawer for the prompt and generation controls. Selecting a suggestion opens the same drawer; generating closes it without losing the draft. Advanced settings scrolls independently above it.
 
-Below 1200px, a hamburger button opens navigation containing workspace links, Gallery, and Support. Route selection closes the menu. At 992-1199px navigation and history use side drawers; below 992px all overlays, including navigation, history, and image/video previews, open from the bottom. Desktop retains its header navigation and inline generation controls. Ant Design styles are rendered through its Next.js registry; the shared `StudioDrawer` component supplies consistent colors and sizing, and `CloseButton` supplies the same close icon across previews and drawers. Advanced settings also uses a bottom drawer on desktop.
+Below 1024px, a hamburger button opens a left-side navigation drawer containing workspace links, Gallery, and Support. Route selection closes the menu. Other overlays, including history and image/video previews, open from the bottom. Desktop retains its header navigation and inline generation controls. Ant Design styles are rendered through its Next.js registry; the shared `StudioDrawer` component supplies consistent colors and sizing, and `CloseButton` supplies the same close icon across previews and drawers. Advanced settings also uses a bottom drawer on desktop.
 
 Once conversations exist, a History handle appears on the right edge and opens a bottom drawer. Each entry represents a conversation, shows its image stack and count, and returns to that conversation when selected. Image and video histories stay separate. Drawers support Escape, backdrop dismissal, focus restoration, safe-area spacing, and reduced motion.
+
+## Error recovery
+
+API requests time out after 30 seconds and validate response data before rendering. Generation polling stops after two minutes; retry resumes the same job without duplicating it. Failed settings saves retain the draft and offer retry. History recovery retries the failed conversation or refreshes the list as appropriate, and stale history requests are cancelled.
+
+Expired sessions display an explicit restart action and keep unsent prompts available to copy before reloading. Broken result images and videos offer media retries. Studio, route, and root rendering failures have recovery screens; detailed rendering errors stay in the console rather than being displayed to users. Optional profile failures use the placeholder avatar.

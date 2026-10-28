@@ -10,6 +10,8 @@ function ResultCard({ item, index, priority, active }) {
   const [requested, setRequested] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [thumbnailFailed, setThumbnailFailed] = useState(false);
+  const [thumbnailAttempt, setThumbnailAttempt] = useState(0);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -68,13 +70,30 @@ function ResultCard({ item, index, priority, active }) {
       onPointerLeave={item.type === "video" ? pause : undefined}
     >
       <Image
+        key={thumbnailAttempt}
         src={item.poster || item.src}
         fill
-        sizes="(min-width: 900px) and (max-width: 1199px) and (orientation: landscape) 31vw, (max-width: 639px) 46vw, (max-width: 1199px) 46vw, (max-width: 1536px) 18vw, 260px"
+        sizes="(min-width: 900px) and (max-width: 1023px) and (orientation: landscape) 31vw, (max-width: 639px) 46vw, (max-width: 1023px) 46vw, (max-width: 1536px) 18vw, 260px"
         style={item.presentation}
         alt={item.prompt}
         priority={priority}
+        onError={() => setThumbnailFailed(true)}
+        onLoad={() => setThumbnailFailed(false)}
       />
+      {thumbnailFailed && (
+        <div className="result-media-error" role="alert">
+          <span>Preview image unavailable</span>
+          <button
+            type="button"
+            onClick={() => {
+              setThumbnailFailed(false);
+              setThumbnailAttempt((value) => value + 1);
+            }}
+          >
+            Retry image
+          </button>
+        </div>
+      )}
       <Link
         className="result-preview-link"
         prefetch={false}
@@ -122,7 +141,20 @@ function ResultCard({ item, index, priority, active }) {
           >
             <Icon name={playing ? "video" : "play"} size={20} />
           </button>
-          {failed && <span className="video-error">Video unavailable</span>}
+          {failed && (
+            <span className="video-error" role="alert">
+              Video unavailable{" "}
+              <button
+                type="button"
+                onClick={() => {
+                  setFailed(false);
+                  setStarted(false);
+                }}
+              >
+                Retry video
+              </button>
+            </span>
+          )}
         </>
       )}
     </div>

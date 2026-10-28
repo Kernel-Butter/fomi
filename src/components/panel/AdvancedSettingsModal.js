@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import StudioDrawer from "../ui/StudioDrawer";
+import StudioSelect from "../ui/StudioSelect";
 import { normalizeSettings } from "../../lib/modelCapabilities";
 export default function AdvancedSettingsModal({
   config,
@@ -150,20 +151,17 @@ export default function AdvancedSettingsModal({
             <label className="advanced-field" htmlFor={`${type}-steps`}>
               Sampling steps
               <span className="advanced-hint">Refinement per generation</span>
-              <select
+              <StudioSelect
                 disabled={saving || !model.settings.includes("steps")}
-                id={`${type}-steps`}
+                id={type + "-steps"}
+                aria-label="Sampling steps"
                 value={draft.steps}
-                onChange={(event) =>
-                  update("steps", Number(event.target.value))
-                }
-              >
-                {samplingSteps.map((steps) => (
-                  <option key={steps} value={steps}>
-                    {steps} steps
-                  </option>
-                ))}
-              </select>
+                onChange={(value) => update("steps", Number(value))}
+                options={samplingSteps.map((steps) => ({
+                  value: steps,
+                  label: steps + " steps",
+                }))}
+              />
             </label>
             <label
               className="advanced-field advanced-guidance"

@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useImperativeHandle, useRef, useState } from "react";
 import StudioDrawer from "../ui/StudioDrawer";
-import Icon from "../Icon";
 
 // Keep the same controls mounted while switching between sidebar and drawer.
 export default function ResponsiveControls({ ref, type, active, children }) {
@@ -9,7 +8,7 @@ export default function ResponsiveControls({ ref, type, active, children }) {
   const [drawerMode, setDrawerMode] = useState(false);
   const [expanded, setExpanded] = useState(false);
   useEffect(() => {
-    const query = window.matchMedia("(max-width: 1199px)");
+    const query = window.matchMedia("(max-width: 1023px)");
     function sync() {
       setDrawerMode(query.matches);
       setExpanded(false);
@@ -39,9 +38,7 @@ export default function ResponsiveControls({ ref, type, active, children }) {
         aria-expanded={expanded && active}
         onClick={() => setExpanded(true)}
       >
-        <Icon name="sparkle" size={18} />
         <span>{label}</span>
-        <Icon name="chevron" size={16} />
       </button>
       <StudioDrawer
         title={label}

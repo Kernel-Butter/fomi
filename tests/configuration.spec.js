@@ -1,3 +1,4 @@
+import { chooseOption, selectedControl } from "./helpers/select";
 import { test, expect } from "@playwright/test";
 
 test("API exposes structured models, validation limits, reference URLs, profile, and support data", async ({
@@ -77,38 +78,33 @@ test("changing models normalizes unsupported selections and filters controls by 
     .getByRole("button", { name: "Advanced settings", exact: true })
     .click();
   let modal = page.getByRole("dialog");
-  await modal
-    .getByRole("combobox", { name: /Sampling steps/ })
-    .selectOption("50");
+  await chooseOption(
+    modal.getByRole("combobox", { name: /Sampling steps/ }),
+    "50 steps",
+  );
   await modal.getByRole("slider").focus();
   await modal.getByRole("slider").press("End");
   await modal
     .getByRole("button", { name: "Apply settings", exact: true })
     .click();
   await expect(modal).not.toBeVisible();
-  await image
-    .getByRole("combobox", { name: "Model", exact: true })
-    .selectOption("Studio");
-  await expect(
-    image.getByRole("combobox", { name: "Number of images", exact: true }),
-  ).toHaveValue("2");
-  await expect(
-    image.getByRole("combobox", { name: "Aspect ratio", exact: true }),
-  ).toHaveValue("16:9");
+  await chooseOption(image.getByRole("combobox", { name: "Model" }), "Studio");
+  await expect(selectedControl(image, "Number of images")).toContainText(
+    "# 2 Images",
+  );
+  await expect(selectedControl(image, "Aspect ratio")).toContainText("16:9");
   await image
     .getByRole("button", { name: "Advanced settings", exact: true })
     .click();
   modal = page.getByRole("dialog");
   await expect(modal.getByRole("slider")).toHaveValue("12");
+  await modal.getByRole("combobox", { name: /Sampling steps/ }).click();
   await expect(
-    modal
-      .getByRole("combobox", { name: /Sampling steps/ })
-      .getByRole("option", { name: "50 steps", exact: true }),
+    page.getByRole("option", { name: "50 steps", exact: true }),
   ).toHaveCount(0);
+  await page.keyboard.press("Escape");
   await modal.getByRole("button", { name: "Cancel", exact: true }).click();
-  await image
-    .getByRole("combobox", { name: "Model", exact: true })
-    .selectOption("Flux");
+  await chooseOption(image.getByRole("combobox", { name: "Model" }), "Flux");
   await image
     .getByRole("button", { name: "Advanced settings", exact: true })
     .click();
@@ -122,11 +118,12 @@ test("changing models normalizes unsupported selections and filters controls by 
     .getByRole("navigation", { name: "Workspace", exact: true })
     .getByRole("link", { name: "Video Studio", exact: true })
     .click();
+  await page
+    .locator("#video-studio")
+    .getByRole("combobox", { name: "Model", exact: true })
+    .click();
   await expect(
-    page
-      .locator("#video-studio")
-      .getByRole("combobox", { name: "Model", exact: true })
-      .getByRole("option", { name: "Flux", exact: true }),
+    page.getByRole("option", { name: "Flux", exact: true }),
   ).toHaveCount(0);
 });
 

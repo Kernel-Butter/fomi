@@ -3,6 +3,7 @@ import { usePathname, useSelectedLayoutSegment } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import AppShell from "./AppShell";
 import Header from "./Header";
+import StudioErrorBoundary from "../ui/StudioErrorBoundary";
 import { StudioNavigationContext } from "./StudioNavigation";
 import { StudioBackendContext } from "./StudioBackend";
 import {
@@ -19,6 +20,12 @@ export default function StudioWorkspace({ children }) {
   const handlers = useRef(new Map());
   const [backend, setBackend] = useState(null);
   const [profile, setProfile] = useState(null);
+  const [sessionExpired, setSessionExpired] = useState(false);
+  useEffect(() => {
+    const expired = () => setSessionExpired(true);
+    window.addEventListener("studio-session-expired", expired);
+    return () => window.removeEventListener("studio-session-expired", expired);
+  }, []);
   useEffect(() => {
     const abort = new AbortController();
     getProfile(abort.signal)
@@ -81,6 +88,17 @@ export default function StudioWorkspace({ children }) {
         />
       </div>
       <div className="studio-workspace" hidden={!inStudio}>
+        {sessionExpired && (
+          <div className="session-error" role="alert">
+            <p>
+              Your session expired. Copy any unsent prompt before starting a new
+              session.
+            </p>
+            <button type="button" onClick={() => window.location.reload()}>
+              Start new session
+            </button>
+          </div>
+        )}
         {backend ? (
           <StudioBackendContext.Provider value={backend}>
             {["image", "video"].map((type) => {
@@ -92,7 +110,9 @@ export default function StudioWorkspace({ children }) {
                   className="studio-session"
                   hidden={!visible || !backend.config.features[type]}
                 >
-                  <AppShell type={type} active={active} />
+                  <StudioErrorBoundary>
+                    <AppShell type={type} active={active} />
+                  </StudioErrorBoundary>
                 </div>
               );
             })}

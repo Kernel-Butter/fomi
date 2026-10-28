@@ -1,12 +1,16 @@
 ﻿import Image from "next/image";
 import Icon from "../Icon";
+import useHistoryScroll from "../../hooks/useHistoryScroll";
 
 export default function HistoryStrip({
   type,
   onSelect,
   stripRef,
   historyGroups = [],
+  currentId,
+  open,
 }) {
+  const { before, after, slide } = useHistoryScroll(stripRef, currentId, open);
   return (
     <section
       className="history-strip"
@@ -26,6 +30,15 @@ export default function HistoryStrip({
           View All
         </button>
       </div>
+      <button
+        type="button"
+        className="history-slide"
+        aria-label="Previous history"
+        disabled={!before}
+        onClick={() => slide(-1)}
+      >
+        <Icon name="previous" size={16} />
+      </button>
       <div
         className="history-scroll"
         ref={stripRef}
@@ -37,7 +50,8 @@ export default function HistoryStrip({
           return (
             <div
               key={group.id}
-              className={`history-deck ${stacked ? "is-stacked" : ""}`}
+              data-history-id={group.id}
+              className={`history-deck ${stacked ? "is-stacked" : ""} ${currentId === group.id ? "is-current" : ""}`}
               role="group"
               aria-label={`Generation: ${group.prompt}`}
               style={{ "--image-count": group.items.length }}
@@ -47,6 +61,7 @@ export default function HistoryStrip({
                   type="button"
                   key={item.id}
                   className="history-preview"
+                  aria-current={currentId === group.id ? "true" : undefined}
                   style={{
                     "--image-index": index,
                     zIndex: group.items.length - index,
@@ -77,7 +92,15 @@ export default function HistoryStrip({
           );
         })}
       </div>
-      <div className="history-fade" />
+      <button
+        type="button"
+        className="history-slide"
+        aria-label="Next history"
+        disabled={!after}
+        onClick={() => slide(1)}
+      >
+        <Icon name="next" size={16} />
+      </button>
     </section>
   );
 }

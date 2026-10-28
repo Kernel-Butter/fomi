@@ -197,13 +197,22 @@
 .advanced-field textarea {
   display: block;
   width: 100%;
-  background: white;
+  background-color: white;
   border: 1px solid #e6d7cd;
   border-radius: 11px;
   padding: 11px 12px;
   font-size: 12px;
   font-weight: 400;
   resize: vertical;
+}
+.advanced-field select {
+  padding-right: 30px;
+  font-size: clamp(14px, 1.5vw, 16px);
+}
+.advanced-field input:not([type="range"]):focus,
+.advanced-field select:focus,
+.advanced-field textarea:focus {
+  border-color: #a85d49;
 }
 .advanced-guidance output {
   float: right;
