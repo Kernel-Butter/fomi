@@ -34,8 +34,8 @@ export default function StudioSelect({ options, ...props }) {
         styles={{
           root: { width: "100%", fontSize },
           popup: {
-            root: { fontSize, fontFamily: "inherit" },
-            listItem: { fontSize },
+            root: { fontSize, fontFamily: "inherit", borderRadius: 0 },
+            listItem: { fontSize, borderRadius: 0 },
           },
         }}
         showSearch={false}

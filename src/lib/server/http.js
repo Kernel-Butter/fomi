@@ -1,4 +1,5 @@
 ﻿import { ServiceError } from "./store.js";
+import { withJsonStore } from "./store.js";
 
 export async function readJson(request) {
   try {
@@ -9,7 +10,7 @@ export async function readJson(request) {
 }
 export async function respond(action) {
   try {
-    const result = await action();
+    const result = await withJsonStore(action);
     return Response.json(result.data ?? result, {
       status: result.status ?? 200,
       headers: { "Cache-Control": "no-store" },

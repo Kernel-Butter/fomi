@@ -165,6 +165,14 @@ Below 1024px, a hamburger button opens a left-side navigation drawer containing 
 
 Once conversations exist, a History handle appears on the right edge and opens a bottom drawer. Each entry represents a conversation, shows its image stack and count, and returns to that conversation when selected. Image and video histories stay separate. Drawers support Escape, backdrop dismissal, focus restoration, safe-area spacing, and reduced motion.
 
+## Temporary JSON database
+
+Sessions, settings, generation jobs, history, and media metadata are saved to `.data/demo-store.json` locally. On Vercel, the automatic path is `/tmp/frame-studio/demo-store.json`. No environment variables are required; `DEMO_STORE_PATH` can override the file location.
+
+Requests reload the file, serialize updates within one Node process, and atomically replace the JSON file after successful operations. The data directory is ignored by Git. Corrupt or unwritable storage returns a recoverable API error instead of silently overwriting data.
+
+This is single-instance demo storage. Vercel `/tmp` is ephemeral and separate for each instance; cold starts, redeploys, or requests routed to another instance can lose access to a session. It is not persistent shared storage.
+
 ## Error recovery
 
 API requests time out after 30 seconds and validate response data before rendering. Generation polling stops after two minutes; retry resumes the same job without duplicating it. Failed settings saves retain the draft and offer retry. History recovery retries the failed conversation or refreshes the list as appropriate, and stale history requests are cancelled.
