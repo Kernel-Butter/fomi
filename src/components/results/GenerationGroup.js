@@ -26,7 +26,11 @@ function GenerationGroup({
       aria-busy={group.loading}
     >
       <div className="conversation-details">
-        <PromptBubble prompt={group.prompt} model={group.model} />
+        <PromptBubble
+          prompt={group.prompt}
+          model={group.model}
+          createdAt={group.createdAt}
+        />
         {group.loading && (
           <div className="job-status">
             <span>
