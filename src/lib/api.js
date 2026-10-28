@@ -9,16 +9,28 @@ import { validResponse } from "./responseValidation";
 async function request(path, { sessionId, signal, method = "GET", body } = {}) {
   const timeout = AbortSignal.timeout(30000);
   try {
-    const response = await fetch(path, {
-      method,
-      signal: signal ? AbortSignal.any([signal, timeout]) : timeout,
-      cache: "no-store",
-      headers: {
-        ...(sessionId ? { "X-Session-ID": sessionId } : {}),
-        ...(body !== undefined ? { "Content-Type": "application/json" } : {}),
-      },
-      ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
-    });
+    const requestSignal = signal ? AbortSignal.any([signal, timeout]) : timeout;
+    const response =
+      process.env.NEXT_PUBLIC_DEMO_STORAGE === "browser" &&
+      typeof window !== "undefined"
+        ? (await import("./browserDemo")).demoRequest(path, {
+            sessionId,
+            method,
+            body,
+            signal: requestSignal,
+          })
+        : await fetch(path, {
+            method,
+            signal: requestSignal,
+            cache: "no-store",
+            headers: {
+              ...(sessionId ? { "X-Session-ID": sessionId } : {}),
+              ...(body !== undefined
+                ? { "Content-Type": "application/json" }
+                : {}),
+            },
+            ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
+          });
     let data;
     try {
       data = await response.json();

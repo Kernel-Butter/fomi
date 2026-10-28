@@ -165,13 +165,19 @@ Below 1024px, a hamburger button opens a left-side navigation drawer containing 
 
 Once conversations exist, a History handle appears on the right edge and opens a bottom drawer. Each entry represents a conversation, shows its image stack and count, and returns to that conversation when selected. Image and video histories stay separate. Drawers support Escape, backdrop dismissal, focus restoration, safe-area spacing, and reduced motion.
 
-## Temporary JSON database
+## Demo storage
+
+Vercel builds automatically use browser `localStorage` for JSON demo data, so sessions, settings, jobs, history, and previews do not depend on a Vercel function instance. Each browser has its own data; preview links work in the browser that generated them. Allow site data in the browser. Clearing site data removes the demo records. No database credentials or environment variables are needed.
+
+Set `DEMO_STORAGE=browser` when building locally to test Vercel mode. Run its integration checks with `TEST_BROWSER_DEMO=1 npx playwright test tests/browser-demo.spec.js` after that build. Set `DEMO_STORAGE=server` only when deliberately using the local server JSON backend.
+
+### Local server JSON database
 
 Sessions, settings, generation jobs, history, and media metadata are saved to `.data/demo-store.json` locally. On Vercel, the automatic path is `/tmp/frame-studio/demo-store.json`. No environment variables are required; `DEMO_STORE_PATH` can override the file location.
 
 Requests reload the file, serialize updates within one Node process, and atomically replace the JSON file after successful operations. The data directory is ignored by Git. Corrupt or unwritable storage returns a recoverable API error instead of silently overwriting data.
 
-This is single-instance demo storage. Vercel `/tmp` is ephemeral and separate for each instance; cold starts, redeploys, or requests routed to another instance can lose access to a session. It is not persistent shared storage.
+The server file is single-instance demo storage. Vercel `/tmp` is ephemeral and separate for each instance, so the deployed browser UI uses browser JSON storage instead. The server JSON file is not a shared database.
 
 ## Error recovery
 
